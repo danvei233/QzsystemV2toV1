@@ -1,0 +1,154 @@
+:root {
+  color: #1f2937;
+  background: #eef2f5;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(12, 75, 96, 0.92), rgba(36, 44, 54, 0.94)),
+    repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,0.06) 28px 29px);
+}
+
+.login-panel {
+  width: min(420px, 100%);
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.eyebrow {
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.login-panel h1 {
+  margin: 8px 0;
+  font-size: 28px;
+  letter-spacing: 0;
+}
+
+.login-panel p {
+  margin: 0 0 24px;
+  color: #5f6b7a;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.sider {
+  background: #17212b !important;
+}
+
+.brand {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  color: #fff;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #11a37f;
+  font-weight: 800;
+}
+
+.brand-title {
+  font-weight: 700;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.topbar {
+  height: 72px;
+  padding: 0 24px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e6e8ec;
+}
+
+.topbar h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.topbar span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.content {
+  padding: 20px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e3e7ec;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 140px 220px;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.detail {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .sider {
+    display: none;
+  }
+
+  .topbar {
+    height: auto;
+    gap: 14px;
+    padding: 14px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,5837 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "默认模块",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/api/v1/openHost": {
+      "post": {
+        "summary": "创建云主机",
+        "deprecated": false,
+        "description": "创建云主机",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "line_id": {
+                    "type": "string",
+                    "description": "线路id （线路id和节点必须至少传一个）"
+                  },
+                  "nodes_id": {
+                    "type": "string",
+                    "description": "物理节点id （线路id和节点必须至少传一个）"
+                  },
+                  "os_name": {
+                    "type": "string",
+                    "description": "操作系统名字，centos7.6"
+                  },
+                  "user_id": {
+                    "type": "string",
+                    "description": "财务用户id 为空",
+                    "nullable": true
+                  },
+                  "host_name": {
+                    "type": "string",
+                    "description": "云主机标识，为空系统自动创建",
+                    "nullable": true
+                  },
+                  "cpu": {
+                    "type": "string",
+                    "description": "cpu核心数"
+                  },
+                  "cpu_limit": {
+                    "type": "string",
+                    "description": "cpu限制使用百分比，可空",
+                    "nullable": true
+                  },
+                  "memory": {
+                    "type": "string",
+                    "description": "内存单位MB"
+                  },
+                  "sys_disk_size": {
+                    "type": "string",
+                    "description": "系统盘大小 单GB，可空",
+                    "nullable": true
+                  },
+                  "sys_disk_iops": {
+                    "type": "string",
+                    "description": "系统盘iops，可空"
+                  },
+                  "sys_disk_read": {
+                    "type": "string",
+                    "description": "hy此参数无效，系统盘读取速度mb，可空",
+                    "nullable": true
+                  },
+                  "sys_disk_write": {
+                    "type": "string",
+                    "description": "hy此参数无效，系统盘写入速度mb，可空",
+                    "nullable": true
+                  },
+                  "data_disk_size": {
+                    "type": "string",
+                    "description": "数据盘大小 单GB，可空",
+                    "nullable": true
+                  },
+                  "data_disk_iops": {
+                    "type": "string",
+                    "description": "数据盘iops，可空",
+                    "nullable": true
+                  },
+                  "data_disk_read": {
+                    "type": "string",
+                    "description": "数据盘读取速度，可空，hy此参数不可用",
+                    "nullable": true
+                  },
+                  "data_disk_write": {
+                    "type": "string",
+                    "description": "数据盘写入速度，可空，hy此参数不可用",
+                    "nullable": true
+                  },
+                  "net_out": {
+                    "type": "string",
+                    "description": "上行带宽"
+                  },
+                  "net_in": {
+                    "type": "string",
+                    "description": "下行带宽，可空",
+                    "nullable": true
+                  },
+                  "snapshot": {
+                    "type": "string",
+                    "description": "快照数量",
+                    "nullable": true
+                  },
+                  "backups": {
+                    "type": "string",
+                    "description": "备份数量",
+                    "nullable": true
+                  },
+                  "sys_pwd": {
+                    "type": "string",
+                    "description": "系统密码"
+                  },
+                  "max_reinstall_num": {
+                    "type": "string",
+                    "description": "每天最多重装系统数量",
+                    "nullable": true
+                  },
+                  "expire_time": {
+                    "type": "string",
+                    "description": "到期时间，2025-11-23 23:23:22"
+                  },
+                  "ip_num": {
+                    "type": "string",
+                    "description": "ip数量，为挂机宝的时候，ip数量可传1，或者为空",
+                    "nullable": true
+                  },
+                  "flow_limit": {
+                    "type": "string",
+                    "description": "月使用流量，可空",
+                    "nullable": true
+                  },
+                  "is_nat": {
+                    "type": "integer",
+                    "description": "传1标识nat机器",
+                    "nullable": true
+                  },
+                  "port_num": {
+                    "type": "integer",
+                    "description": "挂机宝端口数",
+                    "nullable": true
+                  },
+                  "domain_num": {
+                    "type": "integer",
+                    "description": "挂机宝建站数，可空",
+                    "nullable": true
+                  },
+                  "buy_time": {
+                    "type": "string",
+                    "description": "开通时间，可空"
+                  }
+                },
+                "required": [
+                  "nodes_id",
+                  "os_name",
+                  "cpu",
+                  "cpu_limit",
+                  "memory",
+                  "sys_disk_size",
+                  "sys_disk_iops",
+                  "sys_disk_read",
+                  "sys_disk_write",
+                  "data_disk_size",
+                  "data_disk_iops",
+                  "data_disk_read",
+                  "data_disk_write",
+                  "net_out",
+                  "net_in",
+                  "snapshot",
+                  "backups",
+                  "sys_pwd",
+                  "max_reinstall_num",
+                  "expire_time",
+                  "ip_num",
+                  "flow_limit",
+                  "port_num",
+                  "domain_num",
+                  "buy_time",
+                  "line_id"
+                ]
+              },
+              "example": {
+                "nodes_id": "20",
+                "os_name": "ubuntu24.04",
+                "user_id": "0",
+                "host_name": "ser20512342138",
+                "cpu": "4",
+                "cpu_limit": "100",
+                "memory": "4096",
+                "sys_disk_size": "50",
+                "sys_disk_iops": "40000",
+                "sys_disk_read": "0",
+                "sys_disk_write": "0",
+                "data_disk_size": "100",
+                "data_disk_iops": "50000",
+                "data_disk_read": "0",
+                "data_disk_write": "0",
+                "net_out": "20",
+                "net_in": "100",
+                "snapshot": "4",
+                "backups": "4",
+                "sys_pwd": "Qz123456",
+                "max_reinstall_num": "5",
+                "expire_time": "2025-12-07",
+                "ip_num": "3",
+                "flow_limit": "40",
+                "is_nat": 0,
+                "port_num": 0,
+                "domain_num": 0,
+                "buy_time": "2025-12-06 12:24:24"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "area_id": {
+                          "type": "string"
+                        },
+                        "area_name": {
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "type": "integer"
+                        },
+                        "host_name": {
+                          "type": "string"
+                        },
+                        "ip": {
+                          "type": "string"
+                        },
+                        "local_ip": {
+                          "type": "string"
+                        },
+                        "buy_time": {
+                          "type": "string"
+                        },
+                        "end_time": {
+                          "type": "string"
+                        },
+                        "cpu": {
+                          "type": "integer"
+                        },
+                        "memory": {
+                          "type": "integer"
+                        },
+                        "hard_disks": {
+                          "type": "integer"
+                        },
+                        "bandwidth_out": {
+                          "type": "integer"
+                        },
+                        "bandwidth_in": {
+                          "type": "integer"
+                        },
+                        "os_size": {
+                          "type": "integer"
+                        },
+                        "os_name": {
+                          "type": "string"
+                        },
+                        "os_password": {
+                          "type": "string"
+                        },
+                        "panel_password": {
+                          "type": "string"
+                        },
+                        "cpu_limit": {
+                          "type": "integer"
+                        },
+                        "state": {
+                          "type": "integer"
+                        },
+                        "vlanid1": {
+                          "type": "integer"
+                        },
+                        "vlanid2": {
+                          "type": "integer"
+                        },
+                        "close_network": {
+                          "type": "string"
+                        },
+                        "traffic": {
+                          "type": "integer"
+                        },
+                        "max_reinstall_num": {
+                          "type": "integer"
+                        },
+                        "reinstall_num": {
+                          "type": "integer"
+                        },
+                        "os_disk_iops": {
+                          "type": "string"
+                        },
+                        "data_disk_iops": {
+                          "type": "integer"
+                        },
+                        "sync_time": {
+                          "type": "integer"
+                        },
+                        "now_iso": {
+                          "type": "string"
+                        },
+                        "snapshot_num": {
+                          "type": "integer"
+                        },
+                        "backup_num": {
+                          "type": "integer"
+                        },
+                        "domain_num": {
+                          "type": "integer"
+                        },
+                        "bios": {
+                          "type": "string"
+                        },
+                        "metal": {
+                          "type": "integer"
+                        },
+                        "is_nat": {
+                          "type": "integer"
+                        },
+                        "port_num": {
+                          "type": "integer"
+                        },
+                        "mac": {
+                          "type": "string"
+                        },
+                        "mac1": {
+                          "type": "string"
+                        },
+                        "attachip": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "ip": {
+                                "type": "string"
+                              },
+                              "netmask": {
+                                "type": "string"
+                              },
+                              "gateway": {
+                                "type": "string"
+                              },
+                              "mac": {
+                                "type": "string"
+                              },
+                              "ip_pool_name": {
+                                "type": "string"
+                              },
+                              "ip_pool_id": {
+                                "type": "integer"
+                              },
+                              "v_name": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "integer"
+                              },
+                              "v_name_type": {
+                                "type": "string"
+                              },
+                              "remark": {
+                                "type": "string"
+                              },
+                              "create_time": {
+                                "type": "string"
+                              },
+                              "update_time": {
+                                "type": "string"
+                              },
+                              "bind_ip": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ip",
+                              "netmask",
+                              "gateway",
+                              "mac",
+                              "ip_pool_name",
+                              "ip_pool_id",
+                              "v_name",
+                              "state",
+                              "v_name_type",
+                              "remark",
+                              "create_time",
+                              "update_time",
+                              "bind_ip"
+                            ]
+                          }
+                        },
+                        "remote_addr": {
+                          "type": "string"
+                        },
+                        "remote_port": {
+                          "type": "integer"
+                        },
+                        "allip": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "ip": {
+                                "type": "string"
+                              },
+                              "netmask": {
+                                "type": "string"
+                              },
+                              "gateway": {
+                                "type": "string"
+                              },
+                              "mac": {
+                                "type": "string"
+                              },
+                              "ip_pool_name": {
+                                "type": "string"
+                              },
+                              "ip_pool_id": {
+                                "type": "integer"
+                              },
+                              "v_name": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "integer"
+                              },
+                              "v_name_type": {
+                                "type": "string"
+                              },
+                              "remark": {
+                                "type": "string"
+                              },
+                              "create_time": {
+                                "type": "string"
+                              },
+                              "update_time": {
+                                "type": "string"
+                              },
+                              "bind_ip": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ip",
+                              "netmask",
+                              "gateway",
+                              "mac",
+                              "ip_pool_name",
+                              "ip_pool_id",
+                              "v_name",
+                              "state",
+                              "v_name_type",
+                              "remark",
+                              "create_time",
+                              "update_time",
+                              "bind_ip"
+                            ]
+                          }
+                        },
+                        "os_username": {
+                          "type": "string"
+                        },
+                        "state_name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "area_id",
+                        "area_name",
+                        "node_id",
+                        "host_name",
+                        "ip",
+                        "local_ip",
+                        "buy_time",
+                        "end_time",
+                        "cpu",
+                        "memory",
+                        "hard_disks",
+                        "bandwidth_out",
+                        "bandwidth_in",
+                        "os_size",
+                        "os_name",
+                        "os_password",
+                        "panel_password",
+                        "cpu_limit",
+                        "state",
+                        "vlanid1",
+                        "vlanid2",
+                        "close_network",
+                        "traffic",
+                        "max_reinstall_num",
+                        "reinstall_num",
+                        "os_disk_iops",
+                        "data_disk_iops",
+                        "sync_time",
+                        "now_iso",
+                        "snapshot_num",
+                        "backup_num",
+                        "domain_num",
+                        "bios",
+                        "metal",
+                        "is_nat",
+                        "port_num",
+                        "mac",
+                        "mac1",
+                        "attachip",
+                        "remote_addr",
+                        "remote_port",
+                        "allip",
+                        "os_username",
+                        "state_name"
+                      ],
+                      "description": "返回字段含义参考云主机信息接口"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765010036,
+                  "data": {
+                    "id": 4368,
+                    "area_id": "湖北电信100G防御一区",
+                    "area_name": "高频服务器节点1",
+                    "node_id": 20,
+                    "host_name": "ser20512342138",
+                    "ip": "160.202.1.1",
+                    "local_ip": "192.168.22.24",
+                    "buy_time": "2025-12-06",
+                    "end_time": "2025-12-07",
+                    "cpu": 4,
+                    "memory": 4,
+                    "hard_disks": 100,
+                    "bandwidth_out": 20,
+                    "bandwidth_in": 100,
+                    "os_size": 50,
+                    "os_name": "ubuntu24.04",
+                    "os_password": "Qz123456",
+                    "panel_password": "Qz123456",
+                    "cpu_limit": 100,
+                    "state": 1,
+                    "vlanid1": 0,
+                    "vlanid2": 0,
+                    "close_network": "1",
+                    "traffic": 40,
+                    "max_reinstall_num": 5,
+                    "reinstall_num": 0,
+                    "os_disk_iops": "40000",
+                    "data_disk_iops": 50000,
+                    "sync_time": 1,
+                    "now_iso": "",
+                    "snapshot_num": 0,
+                    "backup_num": 4,
+                    "domain_num": 0,
+                    "bios": "IDE",
+                    "metal": 1,
+                    "is_nat": 0,
+                    "port_num": 0,
+                    "mac": "00:15:5D:D0:16:4A",
+                    "mac1": "00:0C:29:28:C8:42",
+                    "attachip": [
+                      {
+                        "id": 806,
+                        "ip": "160.202.1.1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "160.1.1.1",
+                        "mac": "00:15:5D:BE:F2:4B",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser20512342138",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:41",
+                        "update_time": "2025-03-30 13:29:03",
+                        "bind_ip": ""
+                      },
+                      {
+                        "id": 813,
+                        "ip": "160.202.1.1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "160.202.254.1",
+                        "mac": "00:15:5D:7D:A8:58",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser20512342138",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:42",
+                        "update_time": "2025-10-31 12:22:15",
+                        "bind_ip": ""
+                      }
+                    ],
+                    "remote_addr": "160.202.1.1",
+                    "remote_port": 22,
+                    "allip": [
+                      {
+                        "id": 802,
+                        "ip": "160.202.1.1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "160.202.254.1",
+                        "mac": "00:15:5D:D0:16:4A",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser20512342138",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:41",
+                        "update_time": "2025-01-23 09:35:08",
+                        "bind_ip": ""
+                      },
+                      {
+                        "id": 806,
+                        "ip": "160.202.1.1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "160.1.1.1",
+                        "mac": "00:15:5D:BE:F2:4B",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser20512342138",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:41",
+                        "update_time": "2025-03-30 13:29:03",
+                        "bind_ip": ""
+                      },
+                      {
+                        "id": 813,
+                        "ip": "160.202.1.1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "160.1.1.1",
+                        "mac": "00:15:5D:7D:A8:58",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser20512342138",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:42",
+                        "update_time": "2025-10-31 12:22:15",
+                        "bind_ip": ""
+                      }
+                    ],
+                    "os_username": "root",
+                    "state_name": "创建中"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/updateHost": {
+      "post": {
+        "summary": "升级云主机",
+        "deprecated": false,
+        "description": "升级cpu 内存 系统盘  数据盘  上行带宽 下行带宽 流量\n降级 cpu 内存  上行带宽 下行带宽\n不升级的参数，请不要传递参数",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser   ",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "cpu": {
+                    "type": "string",
+                    "description": "cpu核心数"
+                  },
+                  "memory": {
+                    "type": "string",
+                    "description": "内存mb"
+                  },
+                  "sys_disk_size": {
+                    "type": "string",
+                    "description": "系统盘大小gb"
+                  },
+                  "data_disk_size": {
+                    "type": "string",
+                    "description": "数据盘大小gb"
+                  },
+                  "net_out": {
+                    "type": "string",
+                    "description": "上行带宽"
+                  },
+                  "net_in": {
+                    "type": "string",
+                    "description": "下行带宽"
+                  },
+                  "snapshot": {
+                    "type": "string",
+                    "description": "快照数"
+                  },
+                  "backups": {
+                    "type": "string",
+                    "description": "备份数"
+                  },
+                  "flow_limit": {
+                    "type": "string",
+                    "description": "流量"
+                  },
+                  "port_num": {
+                    "type": "integer",
+                    "description": "挂机宝端口数"
+                  },
+                  "domain_num": {
+                    "type": "integer",
+                    "description": "挂机宝域名数"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "cpu",
+                  "memory",
+                  "sys_disk_size",
+                  "data_disk_size",
+                  "net_out",
+                  "net_in",
+                  "snapshot",
+                  "backups",
+                  "flow_limit",
+                  "port_num",
+                  "domain_num"
+                ]
+              },
+              "example": {
+                "hostid": "4370",
+                "cpu": "4",
+                "memory": "8000",
+                "sys_disk_size": "60",
+                "data_disk_size": "200",
+                "net_out": "30",
+                "net_in": "120",
+                "snapshoot": "41",
+                "backups": "41",
+                "flow_limit": "401",
+                "is_nat": 0,
+                "port_num": 0,
+                "domain_num": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 0,
+                  "time": 1765018580
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removeHost": {
+      "post": {
+        "summary": "删除云主机",
+        "deprecated": false,
+        "description": "header的中 需要带    signature 主控后台第三方财务key   apiuser   财务中开通产品的用户名",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature ",
+            "in": "header",
+            "description": "控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser   ",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4370"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 0,
+                  "time": 1765018580
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/info": {
+      "post": {
+        "summary": "云主机信息",
+        "deprecated": false,
+        "description": "header的中 需要带    signature 主控后台第三方财务key   apiuser   财务中开通产品的用户名",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature ",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser   ",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "title": "云主机实例ID"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "3145"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "实例id"
+                        },
+                        "area_id": {
+                          "type": "string",
+                          "description": "地区id"
+                        },
+                        "area_name": {
+                          "type": "string",
+                          "description": "地区名"
+                        },
+                        "node_id": {
+                          "type": "integer",
+                          "description": "节点id"
+                        },
+                        "host_name": {
+                          "type": "string",
+                          "description": "节点名"
+                        },
+                        "ip": {
+                          "type": "string",
+                          "description": "网卡1（一般公网）ip"
+                        },
+                        "local_ip": {
+                          "type": "string",
+                          "description": "网卡（一般内网）2ip"
+                        },
+                        "buy_time": {
+                          "type": "string",
+                          "description": "购买日期"
+                        },
+                        "end_time": {
+                          "type": "string",
+                          "description": "到期日期"
+                        },
+                        "cpu": {
+                          "type": "integer",
+                          "description": "cpu核心"
+                        },
+                        "memory": {
+                          "type": "integer",
+                          "description": "内存"
+                        },
+                        "hard_disks": {
+                          "type": "integer",
+                          "description": "硬盘容量"
+                        },
+                        "bandwidth_out": {
+                          "type": "integer",
+                          "description": "上行带宽"
+                        },
+                        "bandwidth_in": {
+                          "type": "integer",
+                          "description": "下行带宽"
+                        },
+                        "os_name": {
+                          "type": "string",
+                          "description": "系统名称版本"
+                        },
+                        "os_username": {
+                          "type": "string",
+                          "description": "系统用户名"
+                        },
+                        "os_password": {
+                          "type": "string",
+                          "description": "云主机系统密码"
+                        },
+                        "panel_password": {
+                          "type": "string",
+                          "description": "云主机板面密码"
+                        },
+                        "cpu_limit": {
+                          "type": "integer",
+                          "description": "cpu限制百分比"
+                        },
+                        "state": {
+                          "type": "integer",
+                          "description": "状态"
+                        },
+                        "state_name": {
+                          "type": "string",
+                          "description": "运行状态名"
+                        },
+                        "vlanid1": {
+                          "type": "integer",
+                          "description": "网卡1 vlan"
+                        },
+                        "vlanid2": {
+                          "type": "integer",
+                          "description": "网卡2vlan"
+                        },
+                        "close_network": {
+                          "type": "string",
+                          "description": "1网络正常连接，2断开"
+                        },
+                        "traffic": {
+                          "type": "integer",
+                          "description": "流量G"
+                        },
+                        "max_reinstall_num": {
+                          "type": "integer",
+                          "description": "最大重装系统次数"
+                        },
+                        "reinstall_num": {
+                          "type": "integer",
+                          "description": "今日已重装次数"
+                        },
+                        "os_disk_iops": {
+                          "type": "string",
+                          "description": "系统盘iops"
+                        },
+                        "data_disk_iops": {
+                          "type": "integer",
+                          "description": "数据盘iops"
+                        },
+                        "sync_time": {
+                          "type": "integer",
+                          "description": "是否同步宿主机时间。1同步，其他不同步"
+                        },
+                        "now_iso": {
+                          "type": "string",
+                          "description": "当前挂载的iso文件路径"
+                        },
+                        "snapshot_num": {
+                          "type": "integer",
+                          "description": "快照数量"
+                        },
+                        "backup_num": {
+                          "type": "integer",
+                          "description": "备份数量"
+                        },
+                        "domain_num": {
+                          "type": "integer",
+                          "description": "挂机宝域名数量"
+                        },
+                        "bios": {
+                          "type": "string",
+                          "description": "当前引导顺序"
+                        },
+                        "metal": {
+                          "type": "integer",
+                          "description": "是否嵌套虚拟机，1不嵌套"
+                        },
+                        "is_nat": {
+                          "type": "integer",
+                          "description": "是否是nat挂机宝"
+                        },
+                        "port_num": {
+                          "type": "integer",
+                          "description": "挂机宝端口数"
+                        },
+                        "mac": {
+                          "type": "string",
+                          "description": "网卡1mac地址"
+                        },
+                        "mac1": {
+                          "type": "string",
+                          "description": "网卡2mac地址"
+                        },
+                        "allip": {
+                          "type": "string",
+                          "description": "返回所有ip"
+                        },
+                        "attachip": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "ip": {
+                                "type": "string",
+                                "description": "ip"
+                              },
+                              "netmask": {
+                                "type": "string",
+                                "description": "掩码"
+                              },
+                              "gateway": {
+                                "type": "string",
+                                "description": "网关"
+                              },
+                              "mac": {
+                                "type": "string",
+                                "description": "mac"
+                              },
+                              "ip_pool_name": {
+                                "type": "string"
+                              },
+                              "ip_pool_id": {
+                                "type": "integer"
+                              },
+                              "v_name": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "integer"
+                              },
+                              "v_name_type": {
+                                "type": "string"
+                              },
+                              "remark": {
+                                "type": "string"
+                              },
+                              "create_time": {
+                                "type": "string"
+                              },
+                              "update_time": {
+                                "type": "string"
+                              },
+                              "bind_ip": {
+                                "type": "string",
+                                "description": "绑定显示ip"
+                              }
+                            }
+                          },
+                          "description": "附加ip"
+                        },
+                        "remote_addr": {
+                          "type": "string",
+                          "description": "远程访问地址"
+                        },
+                        "remote_port": {
+                          "type": "string",
+                          "description": "远程访问端口"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "area_id",
+                        "area_name",
+                        "node_id",
+                        "host_name",
+                        "ip",
+                        "local_ip",
+                        "buy_time",
+                        "end_time",
+                        "cpu",
+                        "memory",
+                        "hard_disks",
+                        "bandwidth_out",
+                        "bandwidth_in",
+                        "os_name",
+                        "os_password",
+                        "panel_password",
+                        "cpu_limit",
+                        "state",
+                        "vlanid1",
+                        "vlanid2",
+                        "close_network",
+                        "traffic",
+                        "max_reinstall_num",
+                        "reinstall_num",
+                        "os_disk_iops",
+                        "data_disk_iops",
+                        "sync_time",
+                        "now_iso",
+                        "snapshot_num",
+                        "backup_num",
+                        "domain_num",
+                        "bios",
+                        "metal",
+                        "is_nat",
+                        "port_num",
+                        "mac",
+                        "mac1",
+                        "attachip",
+                        "os_username",
+                        "state_name",
+                        "remote_addr",
+                        "remote_port",
+                        "allip"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764913186,
+                  "data": {
+                    "id": 3145,
+                    "area_id": "湖北BGP",
+                    "area_name": "湖北BGP节点1",
+                    "node_id": 21,
+                    "host_name": "ser486450814078",
+                    "ip": "公网ip",
+                    "local_ip": "192.168.2.6",
+                    "buy_time": "2025-03-07",
+                    "end_time": "2026-03-07",
+                    "cpu": 8,
+                    "memory": 16,
+                    "hard_disks": 150,
+                    "bandwidth_out": 20,
+                    "bandwidth_in": 0,
+                    "os_name": "centos7.9",
+                    "os_password": "系统密码",
+                    "panel_password": "板面密码",
+                    "cpu_limit": 100,
+                    "state": 2,
+                    "vlanid1": 0,
+                    "vlanid2": 0,
+                    "close_network": "1",
+                    "traffic": 0,
+                    "max_reinstall_num": 10,
+                    "reinstall_num": 6,
+                    "os_disk_iops": "20000",
+                    "data_disk_iops": 20000,
+                    "sync_time": 1,
+                    "now_iso": "",
+                    "snapshot_num": 1,
+                    "backup_num": 1,
+                    "domain_num": 0,
+                    "bios": "IDE",
+                    "metal": 0,
+                    "is_nat": 0,
+                    "port_num": 10,
+                    "mac": "00:15:5D:93:30:29",
+                    "mac1": "00:0C:29:75:37:F5",
+                    "attachip": [
+                      {
+                        "id": 846,
+                        "ip": "附加ip1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "附加ip网关",
+                        "mac": "00:15:5D:76:05:9C",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser486450814078",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:42",
+                        "update_time": "2025-05-04 11:20:59",
+                        "bind_ip": ""
+                      }
+                    ],
+                    "allip": [
+                      {
+                        "id": 846,
+                        "ip": "附加ip1",
+                        "netmask": "255.255.255.0",
+                        "gateway": "附加ip网关",
+                        "mac": "00:15:5D:76:05:9C",
+                        "ip_pool_name": "湖北骨干",
+                        "ip_pool_id": 17,
+                        "v_name": "ser486450814078",
+                        "state": 2,
+                        "v_name_type": "",
+                        "remark": "",
+                        "create_time": "2025-01-21 15:48:42",
+                        "update_time": "2025-05-04 11:20:59",
+                        "bind_ip": ""
+                      }
+                    ],
+                    "remote_addr": "bgp127.62dns.com",
+                    "remote_port": "15168",
+                    "os_username": "root",
+                    "state_name": "运行中"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/renew": {
+      "post": {
+        "summary": "云主机续费",
+        "deprecated": false,
+        "description": "header的中 需要带    signature 主控后台第三方财务key   apiuser   财务中开通产品的用户名",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature ",
+            "in": "header",
+            "description": " 主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser   ",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "nextduedate": {
+                    "type": "string",
+                    "description": "续费时间，2024-11-23 23:36:23"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "nextduedate"
+                ]
+              },
+              "example": {
+                "hostid": "4370"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 0,
+                  "time": 1765018580
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/power": {
+      "post": {
+        "summary": "云主机电源管理",
+        "deprecated": false,
+        "description": " ",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature ",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser   ",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "state": {
+                    "type": "integer",
+                    "description": "2开机，3软关机，4断开电源，5重启"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "state"
+                ]
+              },
+              "example": {
+                "hostid": "3145",
+                "state": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "启动命令执行成功",
+                  "code": 200,
+                  "time": 1764917665
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/monitor": {
+      "post": {
+        "summary": "云主机实时监控",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature ",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser   ",
+            "in": "header",
+            "description": "财务中开通产品的用户名 ",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "3145"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "cpu": {
+                          "type": "number",
+                          "description": "cpu使用率"
+                        },
+                        "memory": {
+                          "type": "integer",
+                          "description": "内存使用率"
+                        },
+                        "bwOut": {
+                          "type": "string",
+                          "description": "上行带宽 Mbps/s"
+                        },
+                        "bwIn": {
+                          "type": "string",
+                          "description": "下行带宽 Mbps/s"
+                        },
+                        "trafficOut": {
+                          "type": "integer",
+                          "description": "上行流量统计MB"
+                        },
+                        "trafficIn": {
+                          "type": "integer",
+                          "description": "下行流量统计MB"
+                        }
+                      },
+                      "required": [
+                        "cpu",
+                        "memory",
+                        "bwOut",
+                        "bwIn",
+                        "trafficOut",
+                        "trafficIn"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764925555,
+                  "data": {
+                    "cpu": 7.5,
+                    "memory": 100,
+                    "bwOut": "1.01",
+                    "bwIn": "0.01",
+                    "trafficOut": 348449,
+                    "trafficIn": 108865
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/thumbnail": {
+      "post": {
+        "summary": "云主机运行快照图像",
+        "deprecated": false,
+        "description": "base64图片",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": [
+              ""
+            ],
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "title": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "3145"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "images": {
+                          "type": "string",
+                          "description": "图片数据"
+                        }
+                      },
+                      "required": [
+                        "images"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764926170,
+                  "data": {
+                    "images": "iVBORw0KGgoAAAANSUhEUgAAAZAAAAEECAYAAAAGSGKZAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAWaSURBVHhe7dw9iiXXAYbhXoZSgUMn2oLAmxA4MI6MIqMtGAdGe5YpwxlK9d6Z/hx0g+AJHure99TPrQnOmW667tvb395++9e///7b29sbAPw/EgBgkQAAiwQAWCQAwCIBABYJn+q7775L+6O57mG9jx/+/MOXY55jAH8wCR/u53/8/L/tj3/58Yvr/ZmIL9dEeybZM/79n77/st8517Xf/Ry//POX313r2vcaOxP3c/x5/HF/f72+jnt+3lf7X9tzD6dd1zjXv+/3tfFzn9+6zv31+fc4/26vjgP4AAkf7r6A/PTXn768vrtP/GfSvx93P9+ZgO+T8nHOcV3n1fg5/tlfvT+f6dVPD/dz31+fY849nP7qvs99XAvIddx1zPNaVzuL6xm/X/e+BfhgCR/uWwvImehPu2+v4+4T5uVMpuf1mVSP++LytfH7NY5X77+272n3z3ten897v8/n9jif6WsL5bOd18/F89VxAB8g4VPcJ8z7RHhfEO4Lw7W9/md+Hz/7XMeffe7HPo//2vj5LM/Pd5+Iv7XvmcDv46/u64w/7/E5fv9V3fNa53z38XOtcx4LCPBJEgBgkQAAiwQAWCQAwCIBABYJALBI+BT3P619z/3PeJ9ji/eu9epPZQF4V8KnOM8qfOt5ifuzF9f2esBu3Xe51v3Zjef4157BAOCLhE/xnLyv7VkIzkT+fHr71//8+rt9L2chOQ/kPb/r6nmN5/H3fr+eBQTgXQmf4jl53xeQVxP6tX31JYz3Bee+73vXOl+O+Oxne/8JB4CXEj7FmaSfv1Z6/lrqjF/b+1d8vNr3nGO51rU43ReoM37O/zwHAJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACARQIALBIAYJEAAIsEAFgkAMAiAQAWCQCwSACAd/0X5kOb7pUxZiwAAAAASUVORK5CYII="
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/historyNetwork": {
+      "post": {
+        "summary": "云主机历史网络监控（三天数据）",
+        "deprecated": false,
+        "description": "单位Mbps/s",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "title": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "3145"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764926605,
+                  "data": [
+                    [
+                      [
+                        "时间戳 13位格式，10+3位",
+                        "上行带宽"
+                      ],
+                      [
+                        "时间",
+                        "上行带宽"
+                      ]
+                    ],
+                    [
+                      [
+                        "时间",
+                        "下行带宽"
+                      ],
+                      [
+                        "时间",
+                        "下行带宽"
+                      ]
+                    ]
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/historyCpu": {
+      "post": {
+        "summary": "云主机历史cpu监控（三天数据）",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "title": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "3145"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764927144,
+                  "data": [
+                    [
+                      "时间戳 13位格式，10+3位",
+                      19.94
+                    ],
+                    [
+                      1764667238000,
+                      8.57
+                    ]
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/synctime": {
+      "post": {
+        "summary": "云主机同步宿主机时间",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "sync_time": {
+                    "type": "string",
+                    "description": "1同步 2关闭"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "sync_time"
+                ]
+              },
+              "example": {
+                "hostid": "3145",
+                "sync_time": "1同步，2关闭"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764944601
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/updateOSPassword": {
+      "post": {
+        "summary": "重置云主机系统密码",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "密码"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "password"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "password": "111111"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764944601
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/updatePanelPassword": {
+      "post": {
+        "summary": "重置云主机板面密码",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "panel_password": {
+                    "type": "string",
+                    "description": "板面密码"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "panel_password"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "panel_password": "panel_password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1764944601
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/osList": {
+      "post": {
+        "summary": "系统镜像列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4370"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 0,
+                  "time": 1765018580
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/installOS": {
+      "post": {
+        "summary": "重装操作系统",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "template": {
+                    "type": "string",
+                    "description": "根据镜像接口的id或者镜像名称参数。两者接口"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "系统密码"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "template",
+                  "password"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "template": "centos7.9",
+                "password": "Qzsystem222"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "执行重装系统命令成功",
+                  "code": 200,
+                  "time": 1765075017
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/isoList": {
+      "post": {
+        "summary": "iso文件列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4373"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "模板制作插件20251117.iso": {
+                          "type": "string",
+                          "description": "iso"
+                        }
+                      },
+                      "required": [
+                        "模板制作插件20251117.iso"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765075811,
+                  "data": [
+                    "模板制作插件20251117.iso"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/mountISO": {
+      "post": {
+        "summary": "挂载/卸载iso",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "iso_name": {
+                    "type": "string",
+                    "description": "通过iso文件列表接口获取，传空卸载iso"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "iso_name"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "iso_name": "模板制作插件20251117.iso"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765075811
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/bios": {
+      "post": {
+        "summary": "设置开机bios的引导顺序",
+        "deprecated": false,
+        "description": "1从硬盘引导 2从dvd引导",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "bios": {
+                    "type": "string",
+                    "description": "传IDE或者CD"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "bios"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "bios": "IDE"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765075811
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/addIP": {
+      "post": {
+        "summary": "云主机新增IP",
+        "deprecated": false,
+        "description": "ip_num  新增ip数量 需要大于0",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "ip_num": {
+                    "type": "string",
+                    "description": "ip数量"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "ip_num"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "ip_num": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765075811
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removeIP": {
+      "post": {
+        "summary": "云主机删除IP",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "description": "需要删除的ip，不能删除主IP,如果有多个可以英文逗号隔开"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "ip"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "ip_num": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765075811
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/snapshot": {
+      "post": {
+        "summary": "云主机快照列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4373"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "host_name": {
+                                "type": "string"
+                              },
+                              "host_id": {
+                                "type": "integer"
+                              },
+                              "current": {
+                                "type": "integer"
+                              },
+                              "state": {
+                                "type": "integer"
+                              },
+                              "create_time": {
+                                "type": "string"
+                              },
+                              "update_time": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "host_name",
+                              "host_id",
+                              "current",
+                              "state",
+                              "create_time",
+                              "update_time"
+                            ]
+                          }
+                        },
+                        "extend": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "extend"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765084023,
+                  "data": {
+                    "data": [
+                      {
+                        "id": 186,
+                        "name": "hot1207130612",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:06:13",
+                        "update_time": "2025-12-07 13:06:13"
+                      },
+                      {
+                        "id": 185,
+                        "name": "hot1207130602",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:06:03",
+                        "update_time": "2025-12-07 13:06:03"
+                      },
+                      {
+                        "id": 184,
+                        "name": "hot1207130552",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:52",
+                        "update_time": "2025-12-07 13:05:52"
+                      },
+                      {
+                        "id": 183,
+                        "name": "hot1207130542",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:42",
+                        "update_time": "2025-12-07 13:05:42"
+                      },
+                      {
+                        "id": 182,
+                        "name": "hot1207130538",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:39",
+                        "update_time": "2025-12-07 13:05:39"
+                      },
+                      {
+                        "id": 181,
+                        "name": "hot1207130209",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:02:09",
+                        "update_time": "2025-12-07 13:02:09"
+                      }
+                    ],
+                    "extend": {
+                      "count": 6
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/createSnapshot": {
+      "post": {
+        "summary": "云主机创建快照",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4373"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "host_name": {
+                                "type": "string"
+                              },
+                              "host_id": {
+                                "type": "integer"
+                              },
+                              "current": {
+                                "type": "integer"
+                              },
+                              "state": {
+                                "type": "integer"
+                              },
+                              "create_time": {
+                                "type": "string"
+                              },
+                              "update_time": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "host_name",
+                              "host_id",
+                              "current",
+                              "state",
+                              "create_time",
+                              "update_time"
+                            ]
+                          }
+                        },
+                        "extend": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "extend"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765084023,
+                  "data": {
+                    "data": [
+                      {
+                        "id": 186,
+                        "name": "hot1207130612",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:06:13",
+                        "update_time": "2025-12-07 13:06:13"
+                      },
+                      {
+                        "id": 185,
+                        "name": "hot1207130602",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:06:03",
+                        "update_time": "2025-12-07 13:06:03"
+                      },
+                      {
+                        "id": 184,
+                        "name": "hot1207130552",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:52",
+                        "update_time": "2025-12-07 13:05:52"
+                      },
+                      {
+                        "id": 183,
+                        "name": "hot1207130542",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:42",
+                        "update_time": "2025-12-07 13:05:42"
+                      },
+                      {
+                        "id": 182,
+                        "name": "hot1207130538",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:39",
+                        "update_time": "2025-12-07 13:05:39"
+                      },
+                      {
+                        "id": 181,
+                        "name": "hot1207130209",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:02:09",
+                        "update_time": "2025-12-07 13:02:09"
+                      }
+                    ],
+                    "extend": {
+                      "count": 6
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removeSnapshot": {
+      "post": {
+        "summary": "云主机删除快照",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "快照id，从快照列表接口获取id"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "id": 111
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "执行删除快照命令成功",
+                  "code": 200,
+                  "time": 1765084852,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/restoreSnapshot": {
+      "post": {
+        "summary": "云主机恢复快照",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "快照id，从快照列表接口获取id"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "id": 111
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "执行恢复快照命令成功",
+                  "code": 200,
+                  "time": 1765084852,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/backup": {
+      "post": {
+        "summary": "云主机备份列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4373"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "host_name": {
+                                "type": "string"
+                              },
+                              "host_id": {
+                                "type": "integer"
+                              },
+                              "current": {
+                                "type": "integer"
+                              },
+                              "state": {
+                                "type": "integer"
+                              },
+                              "create_time": {
+                                "type": "string"
+                              },
+                              "update_time": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "host_name",
+                              "host_id",
+                              "current",
+                              "state",
+                              "create_time",
+                              "update_time"
+                            ]
+                          }
+                        },
+                        "extend": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "extend"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765084023,
+                  "data": {
+                    "data": [
+                      {
+                        "id": 186,
+                        "name": "hot1207130612",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:06:13",
+                        "update_time": "2025-12-07 13:06:13"
+                      },
+                      {
+                        "id": 185,
+                        "name": "hot1207130602",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:06:03",
+                        "update_time": "2025-12-07 13:06:03"
+                      },
+                      {
+                        "id": 184,
+                        "name": "hot1207130552",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:52",
+                        "update_time": "2025-12-07 13:05:52"
+                      },
+                      {
+                        "id": 183,
+                        "name": "hot1207130542",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:42",
+                        "update_time": "2025-12-07 13:05:42"
+                      },
+                      {
+                        "id": 182,
+                        "name": "hot1207130538",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:05:39",
+                        "update_time": "2025-12-07 13:05:39"
+                      },
+                      {
+                        "id": 181,
+                        "name": "hot1207130209",
+                        "host_name": "ser20512342138",
+                        "host_id": 4373,
+                        "current": 1,
+                        "state": 2,
+                        "create_time": "2025-12-07 13:02:09",
+                        "update_time": "2025-12-07 13:02:09"
+                      }
+                    ],
+                    "extend": {
+                      "count": 6
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/createBackup": {
+      "post": {
+        "summary": "云主机创建备份",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4373"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "执行创建备份命令成功",
+                  "code": 200,
+                  "time": 1765085672,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removeBackup": {
+      "post": {
+        "summary": "云主机删除备份",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "快照id，从快照列表接口获取id"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "id": 111
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "执行删除备份命令成功",
+                  "code": 200,
+                  "time": 1765084852,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/restoreBackupHost": {
+      "post": {
+        "summary": "云主机恢复备份",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "快照id，从快照列表接口获取id"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4373",
+                "id": 111
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "执行恢复备份命令成功",
+                  "code": 200,
+                  "time": 1765084852,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/firewallList": {
+      "post": {
+        "summary": "云主防火墙策略列表",
+        "deprecated": false,
+        "description": "direction 策略方向 out（出）或者in（入）  \nmethod   策略动作 accept （接受）drop（拒绝）\n服务器端口port   所有端口传ANY\n协议protocol  TCP  UDP  ICMP     ANY\n权重priority   越大越来越优先\nip 表示远程ip 要拒绝或者接受访问的远程ip\n\n",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "页码",
+                    "nullable": true
+                  },
+                  "direction": {
+                    "type": "string",
+                    "description": "方向，非必须",
+                    "nullable": true
+                  },
+                  "method": {
+                    "type": "string",
+                    "description": "动作，非必须",
+                    "nullable": true
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "description": "协议非必须",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "page",
+                  "direction",
+                  "method",
+                  "protocol"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "page": 1,
+                "direction": "out",
+                "method": "accept",
+                "protocol": "ANY"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "策略名称"
+                              },
+                              "direction": {
+                                "type": "string",
+                                "description": "策略的方向"
+                              },
+                              "direction_name": {
+                                "type": "string"
+                              },
+                              "method": {
+                                "type": "string",
+                                "description": "策略的动作"
+                              },
+                              "method_name": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string",
+                                "description": "协议"
+                              },
+                              "port": {
+                                "type": "string",
+                                "description": "云服务器端口"
+                              },
+                              "ip": {
+                                "type": "string",
+                                "description": "拒绝或者接受的ip"
+                              },
+                              "priority": {
+                                "type": "string",
+                                "description": "权重数字越大权重越高，不能重复"
+                              },
+                              "remark": {
+                                "type": "string",
+                                "description": "备注"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "direction",
+                              "direction_name",
+                              "method",
+                              "method_name",
+                              "protocol",
+                              "port",
+                              "ip",
+                              "priority",
+                              "remark"
+                            ]
+                          }
+                        },
+                        "extend": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "extend"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765097222,
+                  "data": {
+                    "data": [
+                      {
+                        "id": 2653,
+                        "name": "1207160253",
+                        "direction": "out",
+                        "direction_name": "出",
+                        "method": "accept",
+                        "method_name": "接受",
+                        "protocol": "ANY",
+                        "port": "ANY",
+                        "ip": "ANY",
+                        "priority": "1",
+                        "remark": ""
+                      },
+                      {
+                        "id": 2654,
+                        "name": "1207164643",
+                        "direction": "in",
+                        "direction_name": "入",
+                        "method": "drop",
+                        "method_name": "拒绝",
+                        "protocol": "ICMP",
+                        "port": "ANY",
+                        "ip": "103.91.211.9",
+                        "priority": "2",
+                        "remark": ""
+                      }
+                    ],
+                    "extend": {
+                      "count": 2
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/addFirewall": {
+      "post": {
+        "summary": "云主防火墙添加策略",
+        "deprecated": false,
+        "description": "direction 策略方向 out（出）或者in（入）  \nmethod   策略动作 accept （接受）drop（拒绝）\n服务器端口port   所有端口传ANY\n协议protocol  TCP  UDP  ICMP     ANY\n权重priority   越大越来越优先\nip 表示远程ip 要拒绝或者接受访问的远程ip\n\n",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "description": "方向out或者in"
+                  },
+                  "method": {
+                    "type": "string",
+                    "description": "动作accept或者drop"
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "description": "协议TCP或者  或者UDP 或者 ICMP     或者ANY（全部）"
+                  },
+                  "port": {
+                    "type": "string",
+                    "description": "本机端口，如果是所有填写ANY"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "description": "需要拒绝或者接受的IP，所有就填写ANY"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "description": "权重 数字，越大越优先"
+                  },
+                  "remark": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "direction",
+                  "method",
+                  "protocol",
+                  "port",
+                  "ip",
+                  "priority",
+                  "remark"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "direction": "out",
+                "method": "accept",
+                "protocol": "ANY",
+                "port": "ANY",
+                "ip": "ANY",
+                "priority": 100,
+                "remark": "拒绝"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "策略名称"
+                              },
+                              "direction": {
+                                "type": "string",
+                                "description": "策略的方向"
+                              },
+                              "direction_name": {
+                                "type": "string"
+                              },
+                              "method": {
+                                "type": "string",
+                                "description": "策略的动作"
+                              },
+                              "method_name": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string",
+                                "description": "协议"
+                              },
+                              "port": {
+                                "type": "string",
+                                "description": "云服务器端口"
+                              },
+                              "ip": {
+                                "type": "string",
+                                "description": "拒绝或者接受的ip"
+                              },
+                              "priority": {
+                                "type": "string",
+                                "description": "权重数字越大权重越高，不能重复"
+                              },
+                              "remark": {
+                                "type": "string",
+                                "description": "备注"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "direction",
+                              "direction_name",
+                              "method",
+                              "method_name",
+                              "protocol",
+                              "port",
+                              "ip",
+                              "priority",
+                              "remark"
+                            ]
+                          }
+                        },
+                        "extend": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "extend"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "添加策略成功",
+                  "code": 200,
+                  "time": 1765108050,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removeFirewall": {
+      "post": {
+        "summary": "云主防火墙删除策略",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "integer",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "策略id"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "id": "1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "策略名称"
+                              },
+                              "direction": {
+                                "type": "string",
+                                "description": "策略的方向"
+                              },
+                              "direction_name": {
+                                "type": "string"
+                              },
+                              "method": {
+                                "type": "string",
+                                "description": "策略的动作"
+                              },
+                              "method_name": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string",
+                                "description": "协议"
+                              },
+                              "port": {
+                                "type": "string",
+                                "description": "云服务器端口"
+                              },
+                              "ip": {
+                                "type": "string",
+                                "description": "拒绝或者接受的ip"
+                              },
+                              "priority": {
+                                "type": "string",
+                                "description": "权重数字越大权重越高，不能重复"
+                              },
+                              "remark": {
+                                "type": "string",
+                                "description": "备注"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "direction",
+                              "direction_name",
+                              "method",
+                              "method_name",
+                              "protocol",
+                              "port",
+                              "ip",
+                              "priority",
+                              "remark"
+                            ]
+                          }
+                        },
+                        "extend": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "extend"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "删除策略成功",
+                  "code": 200,
+                  "time": 1765108050,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/portList": {
+      "post": {
+        "summary": "NAT云主机端口列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4349"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "host_id": {
+                            "type": "integer"
+                          },
+                          "host_name": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "端口名称"
+                          },
+                          "port_type": {
+                            "type": "string",
+                            "description": "udp+tcp"
+                          },
+                          "sport": {
+                            "type": "string",
+                            "description": "公网端口"
+                          },
+                          "dport": {
+                            "type": "string",
+                            "description": "内网端口"
+                          },
+                          "api_url": {
+                            "type": "string",
+                            "description": "公网ip"
+                          },
+                          "sys": {
+                            "type": "integer",
+                            "description": "1自定义  2系统"
+                          },
+                          "dip": {
+                            "type": "string",
+                            "description": "内网ip"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765114474,
+                  "data": [
+                    {
+                      "id": 5335,
+                      "host_id": 4349,
+                      "host_name": "ecs-enaLCR",
+                      "name": "ssh",
+                      "port_type": "all",
+                      "sport": "14413",
+                      "dport": "22",
+                      "api_url": "xxxx.com",
+                      "sys": 2,
+                      "dip": "172.16.0.109"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/addPort": {
+      "post": {
+        "summary": "NAT云主机添加端口",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "dport": {
+                    "type": "string",
+                    "description": "内网端口"
+                  },
+                  "sport": {
+                    "type": "string",
+                    "description": "外网端口，为空系统自动分配",
+                    "nullable": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "端口标识 说明，可空",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "dport"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "dport": "43491",
+                "sport": "",
+                "name": "test"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "添加端口成功",
+                  "code": 200,
+                  "time": 1765115134,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removePort": {
+      "post": {
+        "summary": "NAT云主机删除端口 ",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "端口id，通过nat端口列表获取，sys等于的2是不能删除的"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "id": "5413"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "删除端口成功",
+                  "code": 200,
+                  "time": 1765115418,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/findport": {
+      "post": {
+        "summary": "NAT云主机查询未被占用的端口 ",
+        "deprecated": false,
+        "description": "nat做端口映射的时候 可通过此接口查询出可用的端口，输关键词数字 模糊查询出可用的",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string"
+                  },
+                  "keywords": {
+                    "type": "string",
+                    "description": "端口关键词，查询可用端口"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "keywords"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "keywords": "1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "description": "模糊查询出可用端口"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765115596,
+                  "data": [
+                    16854,
+                    15852,
+                    22221,
+                    45164,
+                    41000
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/domainList": {
+      "post": {
+        "summary": "NAT云主机域名列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4349"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "host_name": {
+                            "type": "string"
+                          },
+                          "host_id": {
+                            "type": "string"
+                          },
+                          "api_url": {
+                            "type": "string"
+                          },
+                          "domain": {
+                            "type": "string",
+                            "description": "域名"
+                          },
+                          "dip": {
+                            "type": "string",
+                            "description": "内网ip"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "host_name",
+                          "host_id",
+                          "api_url",
+                          "domain",
+                          "dip"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765165636,
+                  "data": [
+                    {
+                      "id": 2,
+                      "host_name": "ecs-enaLCR",
+                      "host_id": "4349",
+                      "api_url": "bgp127.62dns.com",
+                      "domain": "test1.com",
+                      "dip": "172.16.0.109"
+                    },
+                    {
+                      "id": 1,
+                      "host_name": "ecs-enaLCR",
+                      "host_id": "4349",
+                      "api_url": "bgp127.62dns.com",
+                      "domain": "test.com",
+                      "dip": "172.16.0.109"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/addDomain": {
+      "post": {
+        "summary": "NAT云主机添域名",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "域名"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "domain"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "domain": "test1.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "添加域名成功",
+                  "code": 200,
+                  "time": 1765115134,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/removeDomain": {
+      "post": {
+        "summary": "NAT云主机删除域名",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "域名列表中id"
+                  }
+                },
+                "required": [
+                  "hostid",
+                  "id"
+                ]
+              },
+              "example": {
+                "hostid": "4349",
+                "id": "5413"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "删除域名成功",
+                  "code": 200,
+                  "time": 1765115418,
+                  "data": []
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/vnc": {
+      "post": {
+        "summary": "云主机获取vnc地址",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "signature",
+            "in": "header",
+            "description": "主控后台第三方财务key",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiuser",
+            "in": "header",
+            "description": "财务中开通产品的用户名",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4349"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765165974,
+                  "data": {
+                    "url": "http://qxxxx/?__EVENTTARGET=&__EVENTARGUMENT&server=Z1vTfw==&vmGuid=D950D588-F384-45C5-9AE7-&password=xxxxx-&user=ecs-enaLCR&connect=Connect!"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/panel": {
+      "get": {
+        "summary": "登录独立控制台",
+        "deprecated": false,
+        "description": "http://xxxxx.com/api/v1/panel?host_name=xxxx&panel_password=xxxx  跳转到独立控制台",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "host_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "panel_password",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/test": {
+      "post": {
+        "summary": "test",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostid": {
+                    "type": "string",
+                    "description": "云主机实例id"
+                  }
+                },
+                "required": [
+                  "hostid"
+                ]
+              },
+              "example": {
+                "hostid": "4349"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "time": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "host_name": {
+                            "type": "string"
+                          },
+                          "host_id": {
+                            "type": "string"
+                          },
+                          "api_url": {
+                            "type": "string"
+                          },
+                          "domain": {
+                            "type": "string",
+                            "description": "域名"
+                          },
+                          "dip": {
+                            "type": "string",
+                            "description": "内网ip"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "host_name",
+                          "host_id",
+                          "api_url",
+                          "domain",
+                          "dip"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "time",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "msg": "success",
+                  "code": 200,
+                  "time": 1765165636,
+                  "data": [
+                    {
+                      "id": 2,
+                      "host_name": "ecs-enaLCR",
+                      "host_id": "4349",
+                      "api_url": "bgp127.62dns.com",
+                      "domain": "test1.com",
+                      "dip": "172.16.0.109"
+                    },
+                    {
+                      "id": 1,
+                      "host_name": "ecs-enaLCR",
+                      "host_id": "4349",
+                      "api_url": "bgp127.62dns.com",
+                      "domain": "test.com",
+                      "dip": "172.16.0.109"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "responses": {},
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

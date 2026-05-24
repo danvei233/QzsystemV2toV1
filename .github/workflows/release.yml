@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, for example v0.1.0"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build and publish binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            ext: ""
+            archive: tar.gz
+          - goos: linux
+            goarch: arm64
+            ext: ""
+            archive: tar.gz
+          - goos: windows
+            goarch: amd64
+            ext: ".exe"
+            archive: zip
+          - goos: windows
+            goarch: arm64
+            ext: ".exe"
+            archive: zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build embedded admin UI
+        working-directory: web
+        run: npm run build
+
+      - name: Test
+        env:
+          CGO_ENABLED: "0"
+        run: go test ./...
+
+      - name: Build binary
+        env:
+          CGO_ENABLED: "0"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        shell: bash
+        run: |
+          mkdir -p dist/package
+          BIN="xiaoheiproxy${{ matrix.ext }}"
+          go build \
+            -trimpath \
+            -ldflags "-s -w -X main.version=${{ steps.version.outputs.value }} -X main.commit=${GITHUB_SHA} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            -o "dist/package/${BIN}" \
+            ./cmd/server
+
+      - name: Prepare package
+        shell: bash
+        run: |
+          cp README.md config.example.yaml dist/package/
+          cat > dist/package/START.txt <<'TXT'
+          1. Copy config.example.yaml to config.yaml.
+          2. Edit admin password and gateway upstream settings.
+          3. Run:
+             Linux:   ./xiaoheiproxy -config config.yaml
+             Windows: xiaoheiproxy.exe -config config.yaml
+          4. Open http://127.0.0.1:8090/admin/
+          TXT
+
+      - name: Archive package
+        id: archive
+        shell: bash
+        run: |
+          NAME="xiaoheiproxy-${{ steps.version.outputs.value }}-${{ matrix.goos }}-${{ matrix.goarch }}"
+          mkdir -p dist/release
+          if [[ "${{ matrix.archive }}" == "zip" ]]; then
+            (cd dist/package && zip -r "../release/${NAME}.zip" .)
+            echo "path=dist/release/${NAME}.zip" >> "$GITHUB_OUTPUT"
+          else
+            tar -czf "dist/release/${NAME}.tar.gz" -C dist/package .
+            echo "path=dist/release/${NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate checksum
+        shell: bash
+        run: |
+          cd dist/release
+          sha256sum "$(basename "${{ steps.archive.outputs.path }}")" > "$(basename "${{ steps.archive.outputs.path }}").sha256"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaoheiproxy-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            ${{ steps.archive.outputs.path }}
+            ${{ steps.archive.outputs.path }}.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.archive.outputs.path }}
+            ${{ steps.archive.outputs.path }}.sha256
+          generate_release_notes: true
