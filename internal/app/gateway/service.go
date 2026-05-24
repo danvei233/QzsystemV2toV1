@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -28,6 +29,20 @@ type Service struct {
 	cacheTTL     time.Duration
 	maxBodyBytes int64
 	redactor     *Redactor
+}
+
+type apiEnvelope struct {
+	Code int             `json:"code"`
+	Msg  string          `json:"msg"`
+	Data json.RawMessage `json:"data"`
+	Time int64           `json:"time"`
+}
+
+type imageItem struct {
+	ID      int64  `json:"id"`
+	ImageID int64  `json:"image_id"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
 }
 
 type RuntimeConfig struct {
@@ -90,13 +105,28 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 
 	mapped := MapV2ToV1(req.Path, req.Body)
 	if !mapped.Supported {
-		err := fmt.Errorf("unsupported v2 endpoint: %s", req.Path)
+		errMsg := mapped.Reason
+		if strings.TrimSpace(errMsg) == "" {
+			errMsg = fmt.Sprintf("unsupported v2 endpoint: %s", req.Path)
+		}
+		err := fmt.Errorf("%s", errMsg)
 		resp := errorResponse(http.StatusNotImplemented, err.Error())
 		logEntry.ResponseStatus = resp.StatusCode
 		logEntry.ResponseBody = string(resp.Body)
 		logEntry.Success = false
 		logEntry.Message = err.Error()
 		return resp, nil
+	}
+	if req.Path == "/api/v1/openHost" {
+		if err := s.resolveOpenHostImage(ctx, &mapped); err != nil {
+			resp := errorResponse(http.StatusBadRequest, err.Error())
+			logEntry.ResponseStatus = resp.StatusCode
+			logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
+			logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
+			logEntry.Success = false
+			logEntry.Message = err.Error()
+			return resp, nil
+		}
 	}
 	logEntry.UpstreamMethod = mapped.Request.Method
 	cacheKey := s.cacheKey(req.Path, req.Body)
@@ -126,14 +156,15 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 		logEntry.Message = err.Error()
 		return resp, nil
 	}
-	resp := normalizeResponse(req.Path, upResp)
+	upstreamSuccess := isUpstreamSuccess(req.Path, upResp.StatusCode, upResp.Body)
+	resp := normalizeResponse(req.Path, req.Body, upResp)
 	logEntry.UpstreamURL = upResp.URL
 	logEntry.UpstreamMethod = upResp.Method
 	logEntry.UpstreamHeaders = redactor.HeaderJSON(upResp.RequestHdr)
 	logEntry.ResponseStatus = resp.StatusCode
 	logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
 	logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
-	logEntry.Success = resp.StatusCode >= 200 && resp.StatusCode < 400
+	logEntry.Success = upstreamSuccess
 	logEntry.Message = extractMessage(resp.Body, logEntry.Success)
 	if mapped.Cacheable && logEntry.Success {
 		s.cache.Set(cacheKey, resp.Body, cacheTTL)
@@ -142,6 +173,81 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 		s.cache.DeletePrefix("gateway:")
 	}
 	return resp, nil
+}
+
+func (s *Service) resolveOpenHostImage(ctx context.Context, mapped *MappingResult) error {
+	if mapped == nil {
+		return nil
+	}
+	values := cloneValues(mapped.Request.Query)
+	if values == nil {
+		values = url.Values{}
+	}
+	imageName := strings.TrimSpace(firstNonEmpty(values.Get("os"), values.Get("os_name")))
+	if imageName == "" {
+		return nil
+	}
+	lineID := strings.TrimSpace(values.Get("line_id"))
+	if lineID == "" {
+		return nil
+	}
+	s.mu.RLock()
+	up := s.upstream
+	s.mu.RUnlock()
+	resp, err := up.Do(ctx, upstream.Request{
+		Method: http.MethodGet,
+		Path:   "mirror_image",
+		Query:  url.Values{"line_id": []string{lineID}},
+	})
+	if err != nil {
+		return err
+	}
+	var env apiEnvelope
+	if err := json.Unmarshal(resp.Body, &env); err != nil {
+		return nil
+	}
+	var items []imageItem
+	if err := json.Unmarshal(env.Data, &items); err != nil {
+		return nil
+	}
+	lowerNeedle := strings.ToLower(strings.TrimSpace(imageName))
+	for _, item := range items {
+		if strings.EqualFold(strings.TrimSpace(item.Name), imageName) {
+			values.Set("os", item.Name)
+			mapped.Request.Query = values
+			return nil
+		}
+		id := item.ImageID
+		if id == 0 {
+			id = item.ID
+		}
+		if strconv.FormatInt(id, 10) == imageName || strings.ToLower(strings.TrimSpace(item.Name)) == lowerNeedle {
+			values.Set("os", item.Name)
+			mapped.Request.Query = values
+			return nil
+		}
+	}
+	return fmt.Errorf("image template not found on line_id=%s for os_name=%s", lineID, imageName)
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
+}
+
+func cloneValues(src url.Values) url.Values {
+	if src == nil {
+		return nil
+	}
+	dst := make(url.Values, len(src))
+	for key, vals := range src {
+		dst[key] = append([]string(nil), vals...)
+	}
+	return dst
 }
 
 func (s *Service) UpdateConfig(cfg RuntimeConfig) {
@@ -154,7 +260,7 @@ func (s *Service) UpdateConfig(cfg RuntimeConfig) {
 	s.cache.DeletePrefix("gateway:")
 }
 
-func normalizeResponse(path string, up *upstream.Response) *Response {
+func normalizeResponse(path string, requestBody []byte, up *upstream.Response) *Response {
 	headers := cloneResponseHeaders(up.Headers)
 	body := up.Body
 	status := up.StatusCode
@@ -172,6 +278,11 @@ func normalizeResponse(path string, up *upstream.Response) *Response {
 	}
 	if len(body) == 0 && strings.HasSuffix(path, "/test") {
 		body = mustJSON(map[string]any{"code": 1, "msg": "ok", "time": time.Now().Unix(), "data": map[string]any{}})
+		status = http.StatusOK
+		headers = jsonHeaders()
+	}
+	if normalized := normalizeEnvelopeBody(path, requestBody, up.Body, status); normalized != nil {
+		body = normalized
 		status = http.StatusOK
 		headers = jsonHeaders()
 	}

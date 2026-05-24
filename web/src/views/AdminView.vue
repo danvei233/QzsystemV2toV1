@@ -178,13 +178,28 @@
 
         <a-tabs>
           <a-tab-pane key="downstream" tab="下游请求">
-            <JsonBlock :content="json({ headers: parse(detail.downstream_headers), body: parse(detail.downstream_body) })" />
+            <div class="response-view">
+              <HttpRequestBar :method="detail.downstream_method || 'POST'" :url="detail.downstream_path" />
+              <HttpHeadersTable :headers="downstreamHeaders" />
+              <JsonBlock :content="formatBody(detail.downstream_body)" />
+            </div>
           </a-tab-pane>
           <a-tab-pane key="upstream" tab="上游请求">
-            <JsonBlock :content="json({ method: detail.upstream_method, url: detail.upstream_url, headers: parse(detail.upstream_headers), body: parse(detail.upstream_body) })" />
+            <div class="response-view">
+              <HttpRequestBar :method="detail.upstream_method || 'POST'" :url="detail.upstream_url" />
+              <HttpHeadersTable :headers="upstreamHeaders" />
+              <JsonBlock :content="formatBody(detail.upstream_body)" />
+            </div>
           </a-tab-pane>
           <a-tab-pane key="response" tab="响应">
-            <JsonBlock :content="json({ status: detail.response_status, headers: parse(detail.response_headers), body: parse(detail.response_body) })" />
+            <div class="response-view">
+              <HttpRequestBar method="RESP" :status="detail.response_status" :duration="detail.duration_ms" />
+              <HttpHeadersTable :headers="responseHeaders" />
+              <div v-if="responsePreview.type === 'html'" class="html-preview">
+                <iframe :srcdoc="responsePreview.content" title="HTML response preview" />
+              </div>
+              <JsonBlock v-else :content="responsePreview.content" />
+            </div>
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -193,11 +208,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import dayjs from "dayjs";
 import { message } from "ant-design-vue";
 import { DatabaseOutlined, LogoutOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons-vue";
 import { api, type AdminSettings, type RequestLog, type UpdateSettingsPayload } from "../api/client";
+import HttpHeadersTable from "../components/HttpHeadersTable.vue";
+import HttpRequestBar from "../components/HttpRequestBar.vue";
 import JsonBlock from "../components/JsonBlock.vue";
 
 const emit = defineEmits<{ logout: [] }>();
@@ -321,7 +338,31 @@ const parse = (raw: string) => {
 };
 
 const json = (value: unknown) => JSON.stringify(value, null, 2);
+const formatBody = (raw: string) => {
+  const parsed = parse(raw);
+  return typeof parsed === "string" ? parsed : json(parsed);
+};
 const formatTime = (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm:ss");
+const looksLikeHtml = (value: string) => {
+  const text = value.trim().toLowerCase();
+  return text.startsWith("<!doctype") || text.startsWith("<html") || text.startsWith("<head") || text.startsWith("<body");
+};
+const downstreamHeaders = computed(() => parse(detail.value?.downstream_headers || "") as Record<string, string>);
+const upstreamHeaders = computed(() => parse(detail.value?.upstream_headers || "") as Record<string, string>);
+const responseHeaders = computed(() => parse(detail.value?.response_headers || "") as Record<string, string>);
+const detailResponseBody = computed(() => parse(detail.value?.response_body || ""));
+const responsePreview = computed(() => {
+  const headers = responseHeaders.value as Record<string, unknown>;
+  const body = detailResponseBody.value;
+  const contentType = String(headers["Content-Type"] || headers["content-type"] || "").toLowerCase();
+  if (typeof body === "string" && (contentType.includes("text/html") || looksLikeHtml(body))) {
+    return { type: "html", content: body };
+  }
+  return {
+    type: "text",
+    content: typeof body === "string" ? body : json(body)
+  };
+});
 
 onMounted(() => {
   loadLogs();

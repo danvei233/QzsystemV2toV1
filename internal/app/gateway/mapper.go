@@ -15,6 +15,7 @@ type MappingResult struct {
 	Request   upstream.Request
 	Cacheable bool
 	Supported bool
+	Reason    string
 }
 
 func MapV2ToV1(path string, body []byte) MappingResult {
@@ -72,9 +73,13 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		setIf("os_name", "os")
 		setIf("cpu", "cpu")
 		setIf("memory", "memory")
-		setIf("sys_disk_size", "hard_disks")
+		if totalDisk := sumFields(payload, "sys_disk_size", "data_disk_size"); totalDisk != "" {
+			values.Set("hard_disks", totalDisk)
+		} else {
+			setIf("sys_disk_size", "hard_disks")
+		}
 		setIf("data_disk_size", "data_disk_size")
-		if v := first(payload, "net_out", "net_in"); v != "" {
+		if v := firstNonZero(payload, "net_out", "net_in"); v != "" {
 			values.Set("bandwidth", v)
 		}
 		setIf("expire_time", "expire_time")
@@ -82,19 +87,33 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		setIf("sys_pwd", "sys_pwd")
 		setIf("snapshot", "snapshot")
 		setIf("backups", "backups")
+		setIf("max_reinstall_num", "max_reinstall_num")
+		setIf("flow_limit", "traffic")
 		setIf("port_num", "port_num")
 		setIf("domain_num", "domain_num")
+		if shouldMapPublicIPCount(payload) {
+			setIf("ip_num", "ipnum")
+		}
 		return queryReq(http.MethodPost, "create_host")
 	case "updateHost":
 		setHostID()
 		setIf("cpu", "cpu")
 		setIf("memory", "memory")
-		setIf("sys_disk_size", "hard_disks")
+		if totalDisk := sumFields(payload, "sys_disk_size", "data_disk_size"); totalDisk != "" {
+			values.Set("hard_disks", totalDisk)
+		} else {
+			setIf("sys_disk_size", "hard_disks")
+		}
 		setIf("data_disk_size", "data_disk_size")
-		if v := first(payload, "net_out", "net_in"); v != "" {
+		if v := firstNonZero(payload, "net_out", "net_in"); v != "" {
 			values.Set("bandwidth", v)
 		}
+		setIf("backups", "backups")
+		setIf("snapshot", "snapshot")
 		setIf("port_num", "port_num")
+		if shouldMapPublicIPCount(payload) {
+			setIf("ip_num", "ip_num")
+		}
 		return queryReq(http.MethodPost, "elastic_update")
 	case "removeHost":
 		setHostID()
@@ -206,9 +225,11 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 	case "test":
 		setAll()
 		return formReq(http.MethodPost, "test")
+	case "thumbnail", "historyNetwork", "historyCpu", "synctime", "updatePanelPassword",
+		"isoList", "mountISO", "bios", "addIP", "removeIP", "domainList", "addDomain", "removeDomain":
+		return MappingResult{Supported: false, Reason: "old upstream has no public api implementation for this endpoint"}
 	default:
-		setAll()
-		return formReq(http.MethodPost, action)
+		return MappingResult{Supported: false, Reason: "endpoint behavior not audited yet"}
 	}
 }
 
@@ -224,6 +245,43 @@ func first(payload map[string]any, keys ...string) string {
 		}
 	}
 	return ""
+}
+
+func firstNonZero(payload map[string]any, keys ...string) string {
+	for _, key := range keys {
+		v := stringOf(payload, key)
+		if v == "" || v == "0" {
+			continue
+		}
+		return v
+	}
+	return first(payload, keys...)
+}
+
+func sumFields(payload map[string]any, keys ...string) string {
+	var total int64
+	var hasValue bool
+	for _, key := range keys {
+		raw := stringOf(payload, key)
+		if raw == "" {
+			continue
+		}
+		val, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil {
+			continue
+		}
+		total += val
+		hasValue = true
+	}
+	if !hasValue {
+		return ""
+	}
+	return strconv.FormatInt(total, 10)
+}
+
+func shouldMapPublicIPCount(payload map[string]any) bool {
+	isNAT := strings.TrimSpace(stringOf(payload, "is_nat"))
+	return isNAT == "" || isNAT == "0" || strings.EqualFold(isNAT, "false")
 }
 
 func stringOf(payload map[string]any, key string) string {

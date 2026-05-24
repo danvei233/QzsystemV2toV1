@@ -129,10 +129,30 @@ body {
   gap: 16px;
 }
 
+.response-view {
+  display: grid;
+  gap: 12px;
+}
+
 .settings-actions {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+}
+
+.html-preview {
+  min-height: 520px;
+  overflow: hidden;
+  border: 1px solid #d9e1ea;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.html-preview iframe {
+  width: 100%;
+  min-height: 520px;
+  border: 0;
+  background: #fff;
 }
 
 @media (max-width: 900px) {
