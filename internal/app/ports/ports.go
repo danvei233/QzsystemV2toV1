@@ -11,6 +11,7 @@ type RequestLogRepository interface {
 	Create(ctx context.Context, log *domain.RequestLog) error
 	List(ctx context.Context, filter domain.RequestLogFilter) ([]domain.RequestLog, int64, error)
 	Get(ctx context.Context, id uint) (*domain.RequestLog, error)
+	EndpointErrorStats(ctx context.Context, filter domain.RequestLogFilter, limit int) ([]domain.EndpointErrorStat, error)
 }
 
 type LogRetentionStore interface {

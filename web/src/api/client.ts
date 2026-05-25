@@ -33,6 +33,9 @@ export interface RequestLog {
   upstream_url: string;
   upstream_headers: string;
   upstream_body: string;
+  upstream_response_status?: number;
+  upstream_response_headers?: string;
+  upstream_response_body?: string;
   response_status: number;
   response_headers: string;
   response_body: string;
@@ -47,8 +50,21 @@ export interface LogQuery {
   keyword?: string;
   path?: string;
   success?: string;
+  start_at?: string;
+  end_at?: string;
   limit?: number;
   offset?: number;
+}
+
+export interface EndpointErrorStat {
+  path: string;
+  total: number;
+  success: number;
+  failed: number;
+  error_rate: number;
+  avg_duration_ms: number;
+  last_message: string;
+  last_seen_at: string;
 }
 
 export interface AdminSettings {
@@ -85,6 +101,7 @@ export const api = {
   me: () => http.get("/me"),
   logs: (params: LogQuery) => http.get<{ items: RequestLog[]; total: number }>("/logs", { params }),
   log: (id: number) => http.get<RequestLog>(`/logs/${id}`),
+  errorStats: (params: LogQuery) => http.get<{ items: EndpointErrorStat[] }>("/stats/error-rates", { params }),
   settings: () => http.get<AdminSettings>("/settings"),
   updateSettings: (payload: UpdateSettingsPayload) => http.patch("/settings", payload)
 };

@@ -114,6 +114,11 @@ func (s *Service) GetLog(ctx context.Context, id uint) (*domain.RequestLog, erro
 	return s.logs.Get(ctx, id)
 }
 
+func (s *Service) EndpointErrorStats(ctx context.Context, filter domain.RequestLogFilter, limit int) ([]domain.EndpointErrorStat, error) {
+	filter.Success = nil
+	return s.logs.EndpointErrorStats(ctx, filter, limit)
+}
+
 func (s *Service) UpdateLogRetention(policy domain.LogRetentionPolicy) error {
 	store, ok := s.logs.(ports.LogRetentionStore)
 	if !ok {

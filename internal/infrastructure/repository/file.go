@@ -152,6 +152,12 @@ func (r *FileRequestLogRepository) List(_ context.Context, filter domain.Request
 		if filter.Success != nil && item.Success != *filter.Success {
 			continue
 		}
+		if filter.StartAt != nil && item.CreatedAt.Before(*filter.StartAt) {
+			continue
+		}
+		if filter.EndAt != nil && item.CreatedAt.After(*filter.EndAt) {
+			continue
+		}
 		if kw != "" && !strings.Contains(strings.ToLower(item.TraceID+" "+item.DownstreamPath+" "+item.UpstreamURL+" "+item.Message), kw) {
 			continue
 		}
@@ -175,6 +181,16 @@ func (r *FileRequestLogRepository) List(_ context.Context, filter domain.Request
 		end = len(filtered)
 	}
 	return filtered[offset:end], total, nil
+}
+
+func (r *FileRequestLogRepository) EndpointErrorStats(_ context.Context, filter domain.RequestLogFilter, limit int) ([]domain.EndpointErrorStat, error) {
+	r.mu.Lock()
+	items, err := r.readAll()
+	r.mu.Unlock()
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+	return endpointErrorStats(items, filter, limit), nil
 }
 
 func (r *FileRequestLogRepository) Get(_ context.Context, id uint) (*domain.RequestLog, error) {

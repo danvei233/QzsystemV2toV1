@@ -48,6 +48,66 @@
               <a-select-option value="false">失败</a-select-option>
             </a-select>
             <a-input v-model:value="query.path" placeholder="/api/v1/info" allow-clear style="width: 220px" @pressEnter="loadLogs" />
+            <a-select v-model:value="query.duration" style="width: 160px" @change="handleDurationChange">
+              <a-select-option value="">全部时间</a-select-option>
+              <a-select-option value="5m">近5分钟</a-select-option>
+              <a-select-option value="15m">近15分钟</a-select-option>
+              <a-select-option value="30m">近30分钟</a-select-option>
+              <a-select-option value="1h">近1小时</a-select-option>
+              <a-select-option value="2h">近2小时</a-select-option>
+              <a-select-option value="custom">自定义</a-select-option>
+            </a-select>
+            <a-range-picker
+              v-if="query.duration === 'custom'"
+              v-model:value="query.range"
+              show-time
+              format="YYYY-MM-DD HH:mm:ss"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              style="width: 380px"
+              @change="loadLogs"
+            />
+          </div>
+
+          <div class="stats-strip">
+            <div class="stats-title">错误率最高接口</div>
+            <a-table
+              row-key="path"
+              size="small"
+              :columns="statsColumns"
+              :data-source="errorStats"
+              :pagination="false"
+              :loading="statsLoading"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'stat_path'">
+                  <a-typography-text :content="record.path" copyable />
+                </template>
+                <template v-else-if="column.key === 'error_rate'">
+                  <div class="rate-cell">
+                    <a-progress
+                      :percent="progressPercent(record.error_rate)"
+                      :show-info="false"
+                      size="small"
+                      :stroke-color="rateColor(record.error_rate)"
+                    />
+                    <span>{{ formatRate(record.error_rate) }}</span>
+                  </div>
+                </template>
+                <template v-else-if="column.key === 'volume'">
+                  <span class="metric-danger">{{ record.failed }}</span>
+                  <span class="metric-muted"> / {{ record.total }}</span>
+                </template>
+                <template v-else-if="column.key === 'avg_duration_ms'">
+                  {{ record.avg_duration_ms }} ms
+                </template>
+                <template v-else-if="column.key === 'last_message'">
+                  <a-typography-text :content="record.last_message || '-'" ellipsis />
+                </template>
+                <template v-else-if="column.key === 'last_seen'">
+                  {{ formatTime(record.last_seen_at) }}
+                </template>
+              </template>
+            </a-table>
           </div>
 
           <a-table
@@ -181,24 +241,87 @@
             <div class="response-view">
               <HttpRequestBar :method="detail.downstream_method || 'POST'" :url="detail.downstream_path" />
               <HttpHeadersTable :headers="downstreamHeaders" />
-              <JsonBlock :content="formatBody(detail.downstream_body)" />
+              <div class="body-section">
+                <div class="section-title">真实 Body</div>
+                <JsonBlock v-if="hasBody(detail.downstream_body)" :content="formatBody(detail.downstream_body)" />
+                <div v-else class="empty-body">无请求体</div>
+              </div>
             </div>
           </a-tab-pane>
           <a-tab-pane key="upstream" tab="上游请求">
             <div class="response-view">
-              <HttpRequestBar :method="detail.upstream_method || 'POST'" :url="detail.upstream_url" />
+              <HttpRequestBar :method="detail.upstream_method || 'POST'" :url="upstreamURLWithoutQuery" />
+              <div v-if="upstreamQueryRows.length" class="body-section">
+                <div class="section-title">Query 参数</div>
+                <HttpHeadersTable :headers="upstreamQueryParams" />
+              </div>
               <HttpHeadersTable :headers="upstreamHeaders" />
-              <JsonBlock :content="formatBody(detail.upstream_body)" />
+              <div class="body-section">
+                <div class="section-title">真实 Body</div>
+                <JsonBlock v-if="hasBody(detail.upstream_body)" :content="formatBody(detail.upstream_body)" />
+                <div v-else class="empty-body">无请求体</div>
+              </div>
             </div>
           </a-tab-pane>
           <a-tab-pane key="response" tab="响应">
             <div class="response-view">
-              <HttpRequestBar method="RESP" :status="detail.response_status" :duration="detail.duration_ms" />
-              <HttpHeadersTable :headers="responseHeaders" />
-              <div v-if="responsePreview.type === 'html'" class="html-preview">
-                <iframe :srcdoc="responsePreview.content" title="HTML response preview" />
-              </div>
-              <JsonBlock v-else :content="responsePreview.content" />
+              <a-tabs size="small">
+                <a-tab-pane key="upstream-response" tab="v1 原始响应">
+                  <div v-if="hasUpstreamResponse" class="response-view">
+                    <HttpRequestBar method="V1" :status="upstreamResponseStatus" />
+                    <HttpHeadersTable :headers="upstreamResponseHeaders" />
+                    <div v-if="upstreamResponsePreview.type === 'html'" class="html-preview">
+                      <iframe :srcdoc="upstreamResponsePreview.content" title="v1 HTML response preview" />
+                    </div>
+                    <JsonBlock v-else :content="upstreamResponsePreview.content" />
+                  </div>
+                  <div v-else class="empty-body">旧记录未保存上游原始响应</div>
+                </a-tab-pane>
+                <a-tab-pane key="downstream-response" tab="v2 下游响应">
+                  <div class="response-view">
+                    <HttpRequestBar method="V2" :status="detail.response_status" :duration="detail.duration_ms" />
+                    <HttpHeadersTable :headers="responseHeaders" />
+                    <div v-if="responsePreview.type === 'html'" class="html-preview">
+                      <iframe :srcdoc="responsePreview.content" title="v2 HTML response preview" />
+                    </div>
+                    <JsonBlock v-else :content="responsePreview.content" />
+                  </div>
+                </a-tab-pane>
+                <a-tab-pane key="response-diff" tab="对比">
+                  <div v-if="hasUpstreamResponse" class="diff-view">
+                    <div class="diff-section">
+                      <div class="section-title">状态码</div>
+                      <div class="status-diff">
+                        <div :class="['diff-line', upstreamResponseStatus === detail.response_status ? 'diff-same' : 'diff-remove']">
+                          <span class="diff-sign">{{ upstreamResponseStatus === detail.response_status ? " " : "-" }}</span>
+                          v1: {{ upstreamResponseStatus || "-" }}
+                        </div>
+                        <div :class="['diff-line', upstreamResponseStatus === detail.response_status ? 'diff-same' : 'diff-add']">
+                          <span class="diff-sign">{{ upstreamResponseStatus === detail.response_status ? " " : "+" }}</span>
+                          v2: {{ detail.response_status || "-" }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="diff-section">
+                      <div class="section-title">Headers</div>
+                      <div class="diff-code">
+                        <div v-for="line in headerDiffLines" :key="line.key" :class="['diff-line', line.type]">
+                          <span class="diff-sign">{{ line.sign }}</span>{{ line.text }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="diff-section">
+                      <div class="section-title">Body</div>
+                      <div class="diff-code">
+                        <div v-for="(line, index) in bodyDiffLines" :key="index" :class="['diff-line', line.type]">
+                          <span class="diff-sign">{{ line.sign }}</span>{{ line.text }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="empty-body">旧记录未保存上游原始响应，无法对比</div>
+                </a-tab-pane>
+              </a-tabs>
             </div>
           </a-tab-pane>
         </a-tabs>
@@ -212,7 +335,7 @@ import { computed, onMounted, reactive, ref } from "vue";
 import dayjs from "dayjs";
 import { message } from "ant-design-vue";
 import { DatabaseOutlined, LogoutOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons-vue";
-import { api, type AdminSettings, type RequestLog, type UpdateSettingsPayload } from "../api/client";
+import { api, type AdminSettings, type EndpointErrorStat, type RequestLog, type UpdateSettingsPayload } from "../api/client";
 import HttpHeadersTable from "../components/HttpHeadersTable.vue";
 import HttpRequestBar from "../components/HttpRequestBar.vue";
 import JsonBlock from "../components/JsonBlock.vue";
@@ -221,7 +344,9 @@ const emit = defineEmits<{ logout: [] }>();
 
 const selectedKeys = ref(["logs"]);
 const loading = ref(false);
+const statsLoading = ref(false);
 const logs = ref<RequestLog[]>([]);
+const errorStats = ref<EndpointErrorStat[]>([]);
 const detail = ref<RequestLog | null>(null);
 const detailOpen = ref(false);
 const settings = ref<Partial<AdminSettings>>({});
@@ -238,7 +363,13 @@ const settingsForm = reactive<UpdateSettingsPayload>({
   log_retention_days: 7,
   log_max_size_mb: 100
 });
-const query = reactive({ keyword: "", path: "", success: "" });
+const query = reactive<{ keyword: string; path: string; success: string; duration: string; range: [string, string] | null }>({
+  keyword: "",
+  path: "",
+  success: "",
+  duration: "",
+  range: null
+});
 const pagination = reactive({ current: 1, pageSize: 20, total: 0, showSizeChanger: true });
 
 const columns = [
@@ -253,21 +384,68 @@ const columns = [
   { title: "操作", key: "action", width: 90 }
 ];
 
+const statsColumns = [
+  { title: "接口", key: "stat_path", width: 240 },
+  { title: "错误率", key: "error_rate", width: 220 },
+  { title: "失败/总数", key: "volume", width: 110 },
+  { title: "平均耗时", dataIndex: "avg_duration_ms", key: "avg_duration_ms", width: 110 },
+  { title: "最近消息", key: "last_message", ellipsis: true },
+  { title: "最近时间", key: "last_seen", width: 160 }
+];
+
 const loadLogs = async () => {
   loading.value = true;
+  statsLoading.value = true;
   try {
-    const res = await api.logs({
+    const timeRange = resolveTimeRange();
+    const baseParams = {
       keyword: query.keyword || undefined,
       path: query.path || undefined,
-      success: query.success || undefined,
-      limit: pagination.pageSize,
-      offset: (pagination.current - 1) * pagination.pageSize
-    });
-    logs.value = res.data.items;
-    pagination.total = res.data.total;
+      start_at: timeRange.start,
+      end_at: timeRange.end
+    };
+    const [logRes, statsRes] = await Promise.all([
+      api.logs({
+        ...baseParams,
+        success: query.success || undefined,
+        limit: pagination.pageSize,
+        offset: (pagination.current - 1) * pagination.pageSize
+      }),
+      api.errorStats({
+        ...baseParams,
+        limit: 10
+      })
+    ]);
+    logs.value = logRes.data.items;
+    pagination.total = logRes.data.total;
+    errorStats.value = statsRes.data.items;
   } finally {
     loading.value = false;
+    statsLoading.value = false;
   }
+};
+
+const resolveTimeRange = () => {
+  if (query.duration === "custom") {
+    return { start: query.range?.[0], end: query.range?.[1] };
+  }
+  const value = query.duration;
+  if (!value) return {};
+  const now = dayjs();
+  const amount = Number(value.slice(0, -1));
+  const unit = value.endsWith("h") ? "hour" : "minute";
+  return {
+    start: now.subtract(amount, unit).format("YYYY-MM-DD HH:mm:ss"),
+    end: now.format("YYYY-MM-DD HH:mm:ss")
+  };
+};
+
+const handleDurationChange = () => {
+  if (query.duration !== "custom") {
+    query.range = null;
+  }
+  pagination.current = 1;
+  loadLogs();
 };
 
 const loadSettings = async () => {
@@ -338,11 +516,27 @@ const parse = (raw: string) => {
 };
 
 const json = (value: unknown) => JSON.stringify(value, null, 2);
+const hasBody = (raw?: string) => Boolean(raw && raw.trim() && raw.trim() !== "{}");
 const formatBody = (raw: string) => {
+  if (!hasBody(raw)) return "";
   const parsed = parse(raw);
   return typeof parsed === "string" ? parsed : json(parsed);
 };
-const formatTime = (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm:ss");
+const formatTime = (value: string) => {
+  const created = dayjs(value);
+  const seconds = dayjs().diff(created, "second");
+  if (seconds >= 0 && seconds < 60) return `前${Math.max(seconds, 1)}秒`;
+  if (seconds >= 60 && seconds < 3600) return `前${Math.floor(seconds / 60)}分钟`;
+  if (seconds >= 3600 && seconds <= 7200) return `前${Math.floor(seconds / 3600)}小时`;
+  return created.format("YYYY-MM-DD HH:mm:ss");
+};
+const progressPercent = (value: number) => Math.max(0, Math.min(100, Number(value.toFixed(2))));
+const formatRate = (value: number) => `${Number(value || 0).toFixed(2)}%`;
+const rateColor = (value: number) => {
+  if (value >= 80) return "#cf1322";
+  if (value >= 40) return "#d46b08";
+  return "#389e0d";
+};
 const looksLikeHtml = (value: string) => {
   const text = value.trim().toLowerCase();
   return text.startsWith("<!doctype") || text.startsWith("<html") || text.startsWith("<head") || text.startsWith("<body");
@@ -350,10 +544,26 @@ const looksLikeHtml = (value: string) => {
 const downstreamHeaders = computed(() => parse(detail.value?.downstream_headers || "") as Record<string, string>);
 const upstreamHeaders = computed(() => parse(detail.value?.upstream_headers || "") as Record<string, string>);
 const responseHeaders = computed(() => parse(detail.value?.response_headers || "") as Record<string, string>);
+const upstreamResponseHeaders = computed(() => parse(detail.value?.upstream_response_headers || "") as Record<string, string>);
+const upstreamResponseStatus = computed(() => detail.value?.upstream_response_status || 0);
+const hasUpstreamResponse = computed(() => Boolean(detail.value?.upstream_response_body || detail.value?.upstream_response_status));
+const upstreamURL = computed(() => detail.value?.upstream_url || "");
+const upstreamURLWithoutQuery = computed(() => {
+  const value = upstreamURL.value;
+  if (!value) return "";
+  const index = value.indexOf("?");
+  return index >= 0 ? value.slice(0, index) : value;
+});
+const upstreamQueryParams = computed(() => {
+  const value = upstreamURL.value;
+  const index = value.indexOf("?");
+  if (index < 0) return {};
+  return Object.fromEntries(new URLSearchParams(value.slice(index + 1)).entries());
+});
+const upstreamQueryRows = computed(() => Object.keys(upstreamQueryParams.value));
 const detailResponseBody = computed(() => parse(detail.value?.response_body || ""));
-const responsePreview = computed(() => {
-  const headers = responseHeaders.value as Record<string, unknown>;
-  const body = detailResponseBody.value;
+const upstreamResponseBody = computed(() => parse(detail.value?.upstream_response_body || ""));
+const buildPreview = (headers: Record<string, unknown>, body: unknown) => {
   const contentType = String(headers["Content-Type"] || headers["content-type"] || "").toLowerCase();
   if (typeof body === "string" && (contentType.includes("text/html") || looksLikeHtml(body))) {
     return { type: "html", content: body };
@@ -362,7 +572,42 @@ const responsePreview = computed(() => {
     type: "text",
     content: typeof body === "string" ? body : json(body)
   };
-});
+};
+const responsePreview = computed(() => buildPreview(responseHeaders.value as Record<string, unknown>, detailResponseBody.value));
+const upstreamResponsePreview = computed(() => buildPreview(upstreamResponseHeaders.value as Record<string, unknown>, upstreamResponseBody.value));
+const normalizeForDiff = (raw: string | undefined) => {
+  if (!raw || !raw.trim()) return "";
+  const parsed = parse(raw);
+  return typeof parsed === "string" ? parsed : json(parsed);
+};
+const diffText = (left: string, right: string) => {
+  const leftLines = left.split(/\r?\n/);
+  const rightLines = right.split(/\r?\n/);
+  if (left === right) {
+    return leftLines.map((text) => ({ type: "diff-same", sign: " ", text }));
+  }
+  return [
+    ...leftLines.map((text) => ({ type: "diff-remove", sign: "-", text })),
+    ...rightLines.map((text) => ({ type: "diff-add", sign: "+", text }))
+  ];
+};
+const headersToLines = (headers: Record<string, string>) =>
+  Object.keys(headers)
+    .sort((a, b) => a.localeCompare(b))
+    .map((key) => `${key}: ${headers[key]}`)
+    .join("\n");
+const headerDiffLines = computed(() =>
+  diffText(headersToLines(upstreamResponseHeaders.value), headersToLines(responseHeaders.value)).map((line, index) => ({
+    ...line,
+    key: `${index}-${line.sign}-${line.text}`
+  }))
+);
+const bodyDiffLines = computed(() =>
+  diffText(
+    normalizeForDiff(detail.value?.upstream_response_body),
+    normalizeForDiff(detail.value?.response_body)
+  )
+);
 
 onMounted(() => {
   loadLogs();

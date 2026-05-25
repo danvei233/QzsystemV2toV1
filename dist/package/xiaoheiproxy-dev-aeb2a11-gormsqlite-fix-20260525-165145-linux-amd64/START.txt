@@ -1,0 +1,4 @@
+1. Copy config.example.yaml to config.yaml.
+2. Edit admin password and gateway upstream settings.
+3. Run: ./xiaoheiproxy -config config.yaml
+4. Open http://127.0.0.1:8090/admin/

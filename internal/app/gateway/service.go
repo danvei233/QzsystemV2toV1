@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -36,13 +35,6 @@ type apiEnvelope struct {
 	Msg  string          `json:"msg"`
 	Data json.RawMessage `json:"data"`
 	Time int64           `json:"time"`
-}
-
-type imageItem struct {
-	ID      int64  `json:"id"`
-	ImageID int64  `json:"image_id"`
-	Name    string `json:"name"`
-	Type    string `json:"type"`
 }
 
 type RuntimeConfig struct {
@@ -117,17 +109,6 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 		logEntry.Message = err.Error()
 		return resp, nil
 	}
-	if req.Path == "/api/v1/openHost" {
-		if err := s.resolveOpenHostImage(ctx, &mapped); err != nil {
-			resp := errorResponse(http.StatusBadRequest, err.Error())
-			logEntry.ResponseStatus = resp.StatusCode
-			logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
-			logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
-			logEntry.Success = false
-			logEntry.Message = err.Error()
-			return resp, nil
-		}
-	}
 	logEntry.UpstreamMethod = mapped.Request.Method
 	cacheKey := s.cacheKey(req.Path, req.Body)
 	if mapped.Cacheable && !req.BypassCache {
@@ -161,6 +142,9 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 	logEntry.UpstreamURL = upResp.URL
 	logEntry.UpstreamMethod = upResp.Method
 	logEntry.UpstreamHeaders = redactor.HeaderJSON(upResp.RequestHdr)
+	logEntry.UpstreamRespStatus = upResp.StatusCode
+	logEntry.UpstreamRespHeaders = redactor.HeaderJSON(upResp.Headers)
+	logEntry.UpstreamRespBody = redactor.BodyJSON(upResp.Body)
 	logEntry.ResponseStatus = resp.StatusCode
 	logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
 	logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
@@ -173,61 +157,6 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 		s.cache.DeletePrefix("gateway:")
 	}
 	return resp, nil
-}
-
-func (s *Service) resolveOpenHostImage(ctx context.Context, mapped *MappingResult) error {
-	if mapped == nil {
-		return nil
-	}
-	values := cloneValues(mapped.Request.Query)
-	if values == nil {
-		values = url.Values{}
-	}
-	imageName := strings.TrimSpace(firstNonEmpty(values.Get("os"), values.Get("os_name")))
-	if imageName == "" {
-		return nil
-	}
-	lineID := strings.TrimSpace(values.Get("line_id"))
-	if lineID == "" {
-		return nil
-	}
-	s.mu.RLock()
-	up := s.upstream
-	s.mu.RUnlock()
-	resp, err := up.Do(ctx, upstream.Request{
-		Method: http.MethodGet,
-		Path:   "mirror_image",
-		Query:  url.Values{"line_id": []string{lineID}},
-	})
-	if err != nil {
-		return err
-	}
-	var env apiEnvelope
-	if err := json.Unmarshal(resp.Body, &env); err != nil {
-		return nil
-	}
-	var items []imageItem
-	if err := json.Unmarshal(env.Data, &items); err != nil {
-		return nil
-	}
-	lowerNeedle := strings.ToLower(strings.TrimSpace(imageName))
-	for _, item := range items {
-		if strings.EqualFold(strings.TrimSpace(item.Name), imageName) {
-			values.Set("os", item.Name)
-			mapped.Request.Query = values
-			return nil
-		}
-		id := item.ImageID
-		if id == 0 {
-			id = item.ID
-		}
-		if strconv.FormatInt(id, 10) == imageName || strings.ToLower(strings.TrimSpace(item.Name)) == lowerNeedle {
-			values.Set("os", item.Name)
-			mapped.Request.Query = values
-			return nil
-		}
-	}
-	return fmt.Errorf("image template not found on line_id=%s for os_name=%s", lineID, imageName)
 }
 
 func firstNonEmpty(values ...string) string {

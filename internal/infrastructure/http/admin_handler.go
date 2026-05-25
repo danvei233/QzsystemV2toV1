@@ -88,12 +88,50 @@ func (h *AdminHandler) ListLogs(c *gin.Context) {
 		v := raw == "1" || strings.EqualFold(raw, "true")
 		filter.Success = &v
 	}
+	if startAt, ok := timeQuery(c, "start_at"); ok {
+		filter.StartAt = &startAt
+	}
+	if endAt, ok := timeQuery(c, "end_at"); ok {
+		filter.EndAt = &endAt
+	}
 	items, total, err := h.service.ListLogs(c.Request.Context(), filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"items": items, "total": total})
+}
+
+func (h *AdminHandler) EndpointErrorStats(c *gin.Context) {
+	filter := domain.RequestLogFilter{
+		Keyword: strings.TrimSpace(c.Query("keyword")),
+		Path:    strings.TrimSpace(c.Query("path")),
+	}
+	if startAt, ok := timeQuery(c, "start_at"); ok {
+		filter.StartAt = &startAt
+	}
+	if endAt, ok := timeQuery(c, "end_at"); ok {
+		filter.EndAt = &endAt
+	}
+	items, err := h.service.EndpointErrorStats(c.Request.Context(), filter, intQuery(c, "limit", 10))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
+func timeQuery(c *gin.Context, key string) (time.Time, bool) {
+	raw := strings.TrimSpace(c.Query(key))
+	if raw == "" {
+		return time.Time{}, false
+	}
+	for _, layout := range []string{time.RFC3339, "2006-01-02 15:04:05", "2006-01-02T15:04:05"} {
+		if t, err := time.ParseInLocation(layout, raw, time.Local); err == nil {
+			return t, true
+		}
+	}
+	return time.Time{}, false
 }
 
 func (h *AdminHandler) GetLog(c *gin.Context) {

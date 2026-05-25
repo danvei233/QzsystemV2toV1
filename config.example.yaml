@@ -10,7 +10,7 @@ admin:
   session_ttl: 12h
 
 database:
-  dsn: "data/request_logs.jsonl"
+  dsn: "data/request_logs.db"
 
 logs:
   request:

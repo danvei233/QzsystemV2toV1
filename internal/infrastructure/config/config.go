@@ -98,7 +98,7 @@ func applyDefaults(cfg *Config) {
 		cfg.Server.WriteTimeout = 60 * time.Second
 	}
 	if strings.TrimSpace(cfg.Database.DSN) == "" {
-		cfg.Database.DSN = "data/request_logs.jsonl"
+		cfg.Database.DSN = "data/request_logs.db"
 	}
 	if cfg.Logs.Request.RetentionDays <= 0 {
 		cfg.Logs.Request.RetentionDays = 7

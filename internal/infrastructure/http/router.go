@@ -45,6 +45,7 @@ func NewRouter(deps RouterDeps) *gin.Engine {
 	api.GET("/me", adminHandler.RequireAuth(), adminHandler.Me)
 	api.GET("/logs", adminHandler.RequireAuth(), adminHandler.ListLogs)
 	api.GET("/logs/:id", adminHandler.RequireAuth(), adminHandler.GetLog)
+	api.GET("/stats/error-rates", adminHandler.RequireAuth(), adminHandler.EndpointErrorStats)
 	api.GET("/settings", adminHandler.RequireAuth(), adminHandler.Settings)
 	api.PATCH("/settings", adminHandler.RequireAuth(), adminHandler.UpdateSettings)
 

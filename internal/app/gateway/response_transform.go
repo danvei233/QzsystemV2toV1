@@ -124,7 +124,7 @@ func successCode(path string, success bool) int {
 	}
 	switch path {
 	case "/api/v1/openHost", "/api/v1/info":
-		return 1
+		return 200
 	case "/api/v1/updateHost", "/api/v1/removeHost", "/api/v1/renew", "/api/v1/osList":
 		return 0
 	default:
@@ -135,13 +135,13 @@ func successCode(path string, success bool) int {
 func successMessage(path string) string {
 	switch path {
 	case "/api/v1/openHost":
-		return "succ"
+		return "success"
 	case "/api/v1/updateHost":
 		return "success"
 	case "/api/v1/removeHost":
 		return "success"
 	case "/api/v1/info":
-		return "succ"
+		return "success"
 	case "/api/v1/renew":
 		return "success"
 	case "/api/v1/power":
@@ -198,6 +198,7 @@ func normalizeHostPayload(raw json.RawMessage) map[string]any {
 		"hard_disks":        intValue(data, "hard_disks"),
 		"bandwidth_out":     firstIntValue(data, "bandwidth_out", "bandwidth"),
 		"bandwidth_in":      firstIntValue(data, "bandwidth_in", "bandwidth"),
+		"os_size":           intValue(data, "os_size"),
 		"os_name":           stringValue(data, "os_name"),
 		"os_username":       guessOSUsername(stringValue(data, "os_username"), stringValue(data, "os_name")),
 		"os_password":       stringValue(data, "os_password"),
