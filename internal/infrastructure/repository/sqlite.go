@@ -56,7 +56,7 @@ func OpenSQLite(dsn string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := db.AutoMigrate(&RequestLogRow{}); err != nil {
+	if err := db.AutoMigrate(&RequestLogRow{}, &HostV2MetadataRow{}); err != nil {
 		return nil, err
 	}
 	return db, nil

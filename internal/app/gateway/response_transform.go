@@ -79,7 +79,7 @@ func normalizeEnvelopeBody(path string, requestBody []byte, body []byte, status 
 	case "/api/v1/monitor":
 		return buildSuccessEnvelope(path, normalizeMonitorPayload(env.Data), success)
 	case "/api/v1/snapshot", "/api/v1/backup":
-		return buildSuccessEnvelope(path, normalizeCollectionWithExtend(env.Data, requestBody, path), success)
+		return buildSuccessEnvelope(path, normalizeCollectionWithExtend(env.Data, parseObject(requestBody)), success)
 	case "/api/v1/firewallList":
 		return buildSuccessEnvelope(path, normalizeFirewallList(env.Data), success)
 	case "/api/v1/portList":
@@ -185,8 +185,8 @@ func normalizeHostPayload(raw json.RawMessage) map[string]any {
 	data := parseObject(raw)
 	out := map[string]any{
 		"id":                intValue(data, "id", "host_id"),
-		"area_id":           fmt.Sprint(anyValue(data, "", "area_id")),
-		"area_name":         stringValue(data, "area_name"),
+		"area_id":           firstNonBlank(stringValue(data, "line_name"), fmt.Sprint(anyValue(data, "", "area_id"))),
+		"area_name":         firstNonBlank(stringValue(data, "node_name"), stringValue(data, "area_name")),
 		"node_id":           intValue(data, "node_id"),
 		"host_name":         stringValue(data, "host_name"),
 		"ip":                stringValue(data, "ip"),
@@ -283,10 +283,9 @@ func normalizeMonitorPayload(raw json.RawMessage) map[string]any {
 	}
 }
 
-func normalizeCollectionWithExtend(raw json.RawMessage, requestBody []byte, path string) map[string]any {
+func normalizeCollectionWithExtend(raw json.RawMessage, payload map[string]any) map[string]any {
 	items := parseArray(raw)
-	req := parseObject(requestBody)
-	hostID := intValue(req, "hostid", "host_id")
+	hostID := intValue(payload, "hostid", "host_id")
 	outItems := make([]map[string]any, 0, len(items))
 	for _, item := range items {
 		hostIDItem := firstIntValue(item, "host_id", "virtuals_id")

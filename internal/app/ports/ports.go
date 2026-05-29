@@ -14,6 +14,12 @@ type RequestLogRepository interface {
 	EndpointErrorStats(ctx context.Context, filter domain.RequestLogFilter, limit int) ([]domain.EndpointErrorStat, error)
 }
 
+type HostV2MetadataRepository interface {
+	Upsert(ctx context.Context, metadata *domain.HostV2Metadata) error
+	Get(ctx context.Context, hostID uint) (*domain.HostV2Metadata, error)
+	Delete(ctx context.Context, hostID uint) error
+}
+
 type LogRetentionStore interface {
 	SetRetention(policy domain.LogRetentionPolicy) error
 }

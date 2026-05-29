@@ -34,7 +34,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("load config: %v", err)
 	}
-	logRepo, err := repository.OpenRequestLogRepository(cfg.Database.DSN, domain.LogRetentionPolicy{
+	logRepo, metaRepo, err := repository.OpenGatewayRepositories(cfg.Database.DSN, domain.LogRetentionPolicy{
 		RetentionDays: cfg.Logs.Request.RetentionDays,
 		MaxSizeBytes:  cfg.Logs.Request.MaxSizeMB * 1024 * 1024,
 	})
@@ -43,7 +43,7 @@ func main() {
 	}
 	upstreamClient := upstream.NewClient(cfg.Gateway.UpstreamBaseURL, cfg.Gateway.UpstreamAPIKey, cfg.Gateway.Timeout)
 	memCache := cacheinfra.NewMemoryCache()
-	gatewaySvc := gatewayapp.NewService(upstreamClient, logRepo, memCache, cfg.Gateway.CacheTTL, cfg.Gateway.MaxBodyBytes, cfg.Gateway.RedactFields)
+	gatewaySvc := gatewayapp.NewService(upstreamClient, logRepo, metaRepo, memCache, cfg.Gateway.CacheTTL, cfg.Gateway.MaxBodyBytes, cfg.Gateway.RedactFields)
 	adminSvc := adminapp.NewService(cfg.Admin.Username, cfg.Admin.Password, cfg.Admin.SessionTTL, logRepo)
 	router := httpadapter.NewRouter(httpadapter.RouterDeps{
 		Config:     cfg,

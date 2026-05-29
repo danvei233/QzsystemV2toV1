@@ -69,6 +69,7 @@ func (h *GatewayHandler) Handle(c *gin.Context) {
 		Path:        reqPath,
 		Headers:     c.Request.Header.Clone(),
 		Body:        body,
+		Query:       c.Request.URL.Query(),
 		BypassCache: strings.EqualFold(c.GetHeader("X-Cache-Bypass"), "true"),
 	})
 	if err != nil {

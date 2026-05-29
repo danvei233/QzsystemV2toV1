@@ -24,6 +24,7 @@ type Service struct {
 	mu           sync.RWMutex
 	upstream     *upstream.Client
 	logs         ports.RequestLogRepository
+	metadata     ports.HostV2MetadataRepository
 	cache        ports.Cache
 	cacheTTL     time.Duration
 	maxBodyBytes int64
@@ -53,6 +54,7 @@ type RequestContext struct {
 	Path        string
 	Headers     http.Header
 	Body        []byte
+	Query       url.Values
 	BypassCache bool
 }
 
@@ -63,10 +65,11 @@ type Response struct {
 	ContentType string
 }
 
-func NewService(up *upstream.Client, logs ports.RequestLogRepository, cache ports.Cache, cacheTTL time.Duration, maxBodyBytes int64, redactFields []string) *Service {
+func NewService(up *upstream.Client, logs ports.RequestLogRepository, metadata ports.HostV2MetadataRepository, cache ports.Cache, cacheTTL time.Duration, maxBodyBytes int64, redactFields []string) *Service {
 	return &Service{
 		upstream:     up,
 		logs:         logs,
+		metadata:     metadata,
 		cache:        cache,
 		cacheTTL:     cacheTTL,
 		maxBodyBytes: maxBodyBytes,
@@ -77,8 +80,6 @@ func NewService(up *upstream.Client, logs ports.RequestLogRepository, cache port
 func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, error) {
 	start := time.Now()
 	s.mu.RLock()
-	up := s.upstream
-	cacheTTL := s.cacheTTL
 	redactor := s.redactor
 	s.mu.RUnlock()
 	logEntry := domain.RequestLog{
@@ -95,68 +96,27 @@ func (s *Service) Handle(ctx context.Context, req RequestContext) (*Response, er
 		_ = s.logs.Create(context.Background(), &logEntry)
 	}()
 
-	mapped := MapV2ToV1(req.Path, req.Body)
-	if !mapped.Supported {
-		errMsg := mapped.Reason
-		if strings.TrimSpace(errMsg) == "" {
-			errMsg = fmt.Sprintf("unsupported v2 endpoint: %s", req.Path)
-		}
-		err := fmt.Errorf("%s", errMsg)
-		resp := errorResponse(http.StatusNotImplemented, err.Error())
-		logEntry.ResponseStatus = resp.StatusCode
-		logEntry.ResponseBody = string(resp.Body)
-		logEntry.Success = false
-		logEntry.Message = err.Error()
-		return resp, nil
+	payload := parseRequestPayload(req.Body, req.Query)
+	result := s.execute(ctx, req, payload)
+	if result.primaryRequest != nil {
+		logEntry.UpstreamMethod = result.primaryRequest.Method
+		logEntry.UpstreamBody = redactor.BodyJSON(result.primaryRequest.Body)
 	}
-	logEntry.UpstreamMethod = mapped.Request.Method
-	cacheKey := s.cacheKey(req.Path, req.Body)
-	if mapped.Cacheable && !req.BypassCache {
-		if cached, ok := s.cache.Get(cacheKey); ok {
-			resp := &Response{StatusCode: http.StatusOK, Headers: jsonHeaders(), Body: cached, ContentType: "application/json"}
-			logEntry.ResponseStatus = resp.StatusCode
-			logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
-			logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
-			logEntry.Success = true
-			logEntry.CacheHit = true
-			logEntry.Message = "cache hit"
-			return resp, nil
-		}
+	if result.primaryResponse != nil {
+		logEntry.UpstreamURL = result.primaryResponse.URL
+		logEntry.UpstreamMethod = result.primaryResponse.Method
+		logEntry.UpstreamHeaders = redactor.HeaderJSON(result.primaryResponse.RequestHdr)
+		logEntry.UpstreamRespStatus = result.primaryResponse.StatusCode
+		logEntry.UpstreamRespHeaders = redactor.HeaderJSON(result.primaryResponse.Headers)
+		logEntry.UpstreamRespBody = redactor.BodyJSON(result.primaryResponse.Body)
 	}
-
-	upResp, err := up.Do(ctx, mapped.Request)
-	logEntry.UpstreamURL = upstreamURL(upResp)
-	logEntry.UpstreamHeaders = redactor.HeaderJSON(upstreamHeaders(upResp))
-	logEntry.UpstreamBody = redactor.BodyJSON(mapped.Request.Body)
-	if err != nil {
-		resp := errorResponse(http.StatusBadGateway, err.Error())
-		logEntry.ResponseStatus = resp.StatusCode
-		logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
-		logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
-		logEntry.Success = false
-		logEntry.Message = err.Error()
-		return resp, nil
-	}
-	upstreamSuccess := isUpstreamSuccess(req.Path, upResp.StatusCode, upResp.Body)
-	resp := normalizeResponse(req.Path, req.Body, upResp)
-	logEntry.UpstreamURL = upResp.URL
-	logEntry.UpstreamMethod = upResp.Method
-	logEntry.UpstreamHeaders = redactor.HeaderJSON(upResp.RequestHdr)
-	logEntry.UpstreamRespStatus = upResp.StatusCode
-	logEntry.UpstreamRespHeaders = redactor.HeaderJSON(upResp.Headers)
-	logEntry.UpstreamRespBody = redactor.BodyJSON(upResp.Body)
-	logEntry.ResponseStatus = resp.StatusCode
-	logEntry.ResponseHeaders = redactor.HeaderJSON(resp.Headers)
-	logEntry.ResponseBody = redactor.BodyJSON(resp.Body)
-	logEntry.Success = upstreamSuccess
-	logEntry.Message = extractMessage(resp.Body, logEntry.Success)
-	if mapped.Cacheable && logEntry.Success {
-		s.cache.Set(cacheKey, resp.Body, cacheTTL)
-	}
-	if !mapped.Cacheable {
-		s.cache.DeletePrefix("gateway:")
-	}
-	return resp, nil
+	logEntry.ResponseStatus = result.response.StatusCode
+	logEntry.ResponseHeaders = redactor.HeaderJSON(result.response.Headers)
+	logEntry.ResponseBody = redactor.BodyJSON(result.response.Body)
+	logEntry.Success = result.success
+	logEntry.CacheHit = result.cacheHit
+	logEntry.Message = firstNonBlank(result.message, extractMessage(result.response.Body, result.success))
+	return result.response, nil
 }
 
 func firstNonEmpty(values ...string) string {

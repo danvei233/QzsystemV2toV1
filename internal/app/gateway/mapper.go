@@ -3,6 +3,7 @@ package gateway
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -13,16 +14,11 @@ import (
 
 type MappingResult struct {
 	Request   upstream.Request
-	Cacheable bool
 	Supported bool
 	Reason    string
 }
 
-func MapV2ToV1(path string, body []byte) MappingResult {
-	payload := map[string]any{}
-	if len(body) > 0 {
-		_ = json.Unmarshal(body, &payload)
-	}
+func MapV2ToV1(path string, payload map[string]any) MappingResult {
 	action := strings.TrimPrefix(path, "/api/v1/")
 	values := url.Values{}
 	contentType := "application/x-www-form-urlencoded"
@@ -82,7 +78,9 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		setIf("nodes_id", "nodes_id")
 		setIf("os_name", "os")
 		setIf("cpu", "cpu")
-		setIf("memory", "memory")
+		if memory := memoryMBToV1GB(payload, "memory"); memory != "" {
+			values.Set("memory", memory)
+		}
 		if totalDisk := sumFields(payload, "sys_disk_size", "data_disk_size"); totalDisk != "" {
 			values.Set("hard_disks", totalDisk)
 		} else {
@@ -111,7 +109,9 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		}
 		setHostID()
 		setIf("cpu", "cpu")
-		setIf("memory", "memory")
+		if memory := memoryMBToV1GB(payload, "memory"); memory != "" {
+			values.Set("memory", memory)
+		}
 		if totalDisk := sumFields(payload, "sys_disk_size", "data_disk_size"); totalDisk != "" {
 			values.Set("hard_disks", totalDisk)
 		} else {
@@ -139,7 +139,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 			return invalid
 		}
 		setHostID()
-		return cacheable(formReq(http.MethodPost, "hostinfo"))
+		return formReq(http.MethodPost, "hostinfo")
 	case "renew":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -165,7 +165,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 			return invalid
 		}
 		setHostID()
-		return cacheable(formReq(http.MethodPost, "monitor"))
+		return formReq(http.MethodPost, "monitor")
 	case "updateOSPassword":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -175,7 +175,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		return formReq(http.MethodPost, "reset_password")
 	case "osList":
 		setIf("line_id", "line_id")
-		return cacheable(queryReq(http.MethodGet, "mirror_image"))
+		return queryReq(http.MethodGet, "mirror_image")
 	case "installOS":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -189,7 +189,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 			return invalid
 		}
 		setHostID()
-		return cacheable(formReq(http.MethodPost, "snapshot_list"))
+		return formReq(http.MethodPost, "snapshot_list")
 	case "createSnapshot":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -215,7 +215,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 			return invalid
 		}
 		setHostID()
-		return cacheable(formReq(http.MethodPost, "backups_list"))
+		return formReq(http.MethodPost, "backups_list")
 	case "createBackup":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -245,7 +245,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		setIf("direction", "direction")
 		setIf("method", "method")
 		setIf("protocol", "protocol")
-		return cacheable(queryReq(http.MethodGet, "security_acl_list"))
+		return queryReq(http.MethodGet, "security_acl_list")
 	case "addFirewall":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -271,7 +271,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 			return invalid
 		}
 		setHostID()
-		return cacheable(queryReq(http.MethodGet, "nat_acl_list"))
+		return queryReq(http.MethodGet, "nat_acl_list")
 	case "addPort":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -294,7 +294,7 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 		}
 		setHostID()
 		setIf("keywords", "keywords")
-		return cacheable(queryReq(http.MethodGet, "findport"))
+		return queryReq(http.MethodGet, "findport")
 	case "vnc":
 		if invalid := requireHostID(); !invalid.Supported {
 			return invalid
@@ -313,11 +313,6 @@ func MapV2ToV1(path string, body []byte) MappingResult {
 	default:
 		return MappingResult{Supported: false, Reason: "endpoint behavior not audited yet"}
 	}
-}
-
-func cacheable(result MappingResult) MappingResult {
-	result.Cacheable = true
-	return result
 }
 
 func first(payload map[string]any, keys ...string) string {
@@ -364,6 +359,22 @@ func sumFields(payload map[string]any, keys ...string) string {
 func shouldMapPublicIPCount(payload map[string]any) bool {
 	isNAT := strings.TrimSpace(stringOf(payload, "is_nat"))
 	return isNAT == "" || isNAT == "0" || strings.EqualFold(isNAT, "false")
+}
+
+func memoryMBToV1GB(payload map[string]any, key string) string {
+	raw := stringOf(payload, key)
+	if raw == "" {
+		return ""
+	}
+	mb, err := strconv.ParseFloat(raw, 64)
+	if err != nil || mb < 1024 {
+		return raw
+	}
+	gb := int64(math.Round(mb / 1024))
+	if gb < 1 {
+		gb = 1
+	}
+	return strconv.FormatInt(gb, 10)
 }
 
 func stringOf(payload map[string]any, key string) string {

@@ -24,6 +24,19 @@ func OpenRequestLogRepository(dsn string, retention domain.LogRetentionPolicy) (
 	return NewRequestLogRepository(db, normalized, retention), nil
 }
 
+func OpenGatewayRepositories(dsn string, retention domain.LogRetentionPolicy) (ports.RequestLogRepository, ports.HostV2MetadataRepository, error) {
+	source := strings.TrimSpace(dsn)
+	normalized := normalizeDSN(source)
+	db, err := OpenSQLite(normalized)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := migrateJSONLToSQLite(db, source, retention); err != nil {
+		return nil, nil, err
+	}
+	return NewRequestLogRepository(db, normalized, retention), NewHostV2MetadataRepository(db), nil
+}
+
 func normalizeDSN(dsn string) string {
 	value := strings.TrimSpace(dsn)
 	if value == "" {
